@@ -1,3 +1,10 @@
+var list = []
+var map = null
+
+var isNull = (data) => {
+	return data == '' || data == null || data == undefined
+}
+
 // 현재 위치 조회
 var getLocation = () => new Promise((resolve, reject) => {
 	navigator.geolocation.getCurrentPosition((position) => {
@@ -33,34 +40,66 @@ var createMap = async () => {
 	return new kakao.maps.Map(container, options)
 }
 
-var map = null
-createMap().then(m => map = m)
+$(() => {
+	createMap().then(m => map = m)
 
-var addressToGoordinate = async () => {
-	// 주소-좌표 변환 객체
-	var geocoder = new kakao.maps.services.Geocoder()
+	var addressToGoordinate = async () => {
+		// 주소-좌표 변환 객체
+		var geocoder = new kakao.maps.services.Geocoder()
 
-	// 주소로 좌표 검색
-	var list = (await getData()).values
+		// 주소로 좌표 검색
+		list = (await getData()).values
 
-	list = list.map((el) => {
-		if(el[3]) {
-			geocoder.addressSearch(el[3], (result, status) => {
-				if (status === kakao.maps.services.Status.OK) {
-					var coords = new kakao.maps.LatLng(result[0].y, result[0].x)
-			
-					el.push(
-							new kakao.maps.Marker({
-								map: map,
-								position: coords
-							})
-					)
-				}
+		list = list.map((el) => {
+			if(el[3]) {
+				geocoder.addressSearch(el[3], (result, status) => {
+					if (status === kakao.maps.services.Status.OK) {
+						var coords = new kakao.maps.LatLng(result[0].y, result[0].x)
+				
+						el.push(
+								new kakao.maps.Marker({
+									map: map,
+									position: coords
+								})
+						)
+					}
+				})
+			}
+
+			return el
+		})
+	}
+
+	addressToGoordinate()
+})
+
+$('#search').on('click', 'ion-icon', () => {
+	var text = $('#search').find('input').val()
+
+	if(isNull(text)) {
+		list.forEach(el => {
+			if(el[5]) el[5].setMap(map)
+		})
+	} else {
+		var showList = list.filter(el => {
+			return el[1].includes(text)
+		})
+
+		var hideList = list.filter(el => {
+			return !el[1].includes(text)
+		})
+
+		if(showList.length > 0) map.panTo(showList[0][5].getPosition())
+
+		if(hideList.length > 0) {
+			hideList.forEach(el => {
+				if(el[5]) el[5].setMap(null)
 			})
 		}
+	}
+})
 
-		return el
-	})
-}
-
-addressToGoordinate()
+$('#gps').on('click', async () => {
+	var gps = await getLocation()
+	map.panTo(new kakao.maps.LatLng(gps.lat, gps.long))
+})
