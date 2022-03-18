@@ -40,35 +40,49 @@ var createMap = async () => {
 	return new kakao.maps.Map(container, options)
 }
 
+// 주소 -> 좌표 변환
+var addressToGoordinate = async () => {
+	// 주소-좌표 변환 객체
+	var geocoder = new kakao.maps.services.Geocoder()
+
+	// 주소로 좌표 검색
+	list = (await getData()).values
+
+	list = list.map((el) => {
+		if(el[3]) {
+			geocoder.addressSearch(el[3], (result, status) => {
+				if (status === kakao.maps.services.Status.OK) {
+					var marker = {
+						map: map,
+						position: new kakao.maps.LatLng(result[0].y, result[0].x)
+					}
+
+					switch(el[2]) {
+						case '카페':
+							marker.image = new kakao.maps.MarkerImage('./images/coffee.png', new kakao.maps.Size(24, 24), {offset: new kakao.maps.Point(12, 12)})
+							break;
+
+						case '음식점':
+							marker.image = new kakao.maps.MarkerImage('./images/restaurant.png', new kakao.maps.Size(20, 20), {offset: new kakao.maps.Point(10, 10)})
+							break;
+
+						default:
+							break;
+					}
+
+					el.push(
+						new kakao.maps.Marker(marker)
+					)
+				}
+			})
+		}
+
+		return el
+	})
+}
+
 $(() => {
 	createMap().then(m => map = m)
-
-	var addressToGoordinate = async () => {
-		// 주소-좌표 변환 객체
-		var geocoder = new kakao.maps.services.Geocoder()
-
-		// 주소로 좌표 검색
-		list = (await getData()).values
-
-		list = list.map((el) => {
-			if(el[3]) {
-				geocoder.addressSearch(el[3], (result, status) => {
-					if (status === kakao.maps.services.Status.OK) {
-						var coords = new kakao.maps.LatLng(result[0].y, result[0].x)
-				
-						el.push(
-								new kakao.maps.Marker({
-									map: map,
-									position: coords
-								})
-						)
-					}
-				})
-			}
-
-			return el
-		})
-	}
 
 	addressToGoordinate()
 })
