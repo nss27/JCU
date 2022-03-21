@@ -1,4 +1,5 @@
 var list = []
+var files = []
 var map = null
 
 var isNull = (data) => {
@@ -28,6 +29,18 @@ var getData = async () => {
 	})
 }
 
+var getFile = async () => {
+	var spreadsheetId = '1fPWASjJ-DSsDFv-ctdQecYb3PFk716L7E6BYCZt6r1Q'
+	var range = '파일!a2:z50'
+	var key = 'AIzaSyD9oysquqycaA0YLekjnbLwF26-YKJ807o'
+
+	return await $.ajax({
+		type: 'get',
+		url: `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${key}`,
+		dataType: 'json'
+	})
+}
+
 // 지도 생성
 var createMap = async () => {
 	var gps = await getLocation()
@@ -41,12 +54,9 @@ var createMap = async () => {
 }
 
 // 주소 -> 좌표 변환
-var addressToGoordinate = async () => {
+var addressToGoordinate = async (list) => {
 	// 주소-좌표 변환 객체
 	var geocoder = new kakao.maps.services.Geocoder()
-
-	// 주소로 좌표 검색
-	list = (await getData()).values
 
 	list = list.map((el) => {
 		if(el[3]) {
@@ -57,17 +67,13 @@ var addressToGoordinate = async () => {
 						position: new kakao.maps.LatLng(result[0].y, result[0].x)
 					}
 
-					switch(el[2]) {
-						case '카페':
-							marker.image = new kakao.maps.MarkerImage('./images/coffee.png', new kakao.maps.Size(24, 24), {offset: new kakao.maps.Point(12, 12)})
-							break;
-
-						case '음식점':
-							marker.image = new kakao.maps.MarkerImage('./images/restaurant.png', new kakao.maps.Size(20, 20), {offset: new kakao.maps.Point(10, 10)})
-							break;
-
-						default:
-							break;
+					if(!isNull(el[5])) {
+						for(var i = 0; i < files.length; i++) {
+							if(files[i][0] == el[5]) {
+								marker.image = new kakao.maps.MarkerImage(files[i][3], new kakao.maps.Size(22, 22), {offset: new kakao.maps.Point(11, 11)})
+								break
+							}
+						}
 					}
 
 					el.push(
@@ -79,12 +85,15 @@ var addressToGoordinate = async () => {
 
 		return el
 	})
+
+	return list
 }
 
-$(() => {
-	createMap().then(m => map = m)
-
-	addressToGoordinate()
+$(async () => {
+	map = await createMap()
+	files = (await getFile()).values
+	list = (await getData()).values
+	list = await addressToGoordinate(list)
 })
 
 $('#search').on('click', 'ion-icon', () => {
@@ -92,7 +101,7 @@ $('#search').on('click', 'ion-icon', () => {
 
 	if(isNull(text)) {
 		list.forEach(el => {
-			if(el[5]) el[5].setMap(map)
+			if(typeof(el[el.length - 1]) == "object") el[el.length - 1].setMap(map)
 		})
 	} else {
 		var showList = list.filter(el => {
@@ -103,11 +112,11 @@ $('#search').on('click', 'ion-icon', () => {
 			return !el[1].includes(text)
 		})
 
-		if(showList.length > 0) map.panTo(showList[0][5].getPosition())
+		if(showList.length > 0 && showList[0][showList[0].length - 1]) map.panTo(showList[0][showList[0].length - 1].getPosition())
 
 		if(hideList.length > 0) {
 			hideList.forEach(el => {
-				if(el[5]) el[5].setMap(null)
+				if(typeof(el[el.length - 1]) == 'object') el[el.length - 1].setMap(null)
 			})
 		}
 	}
