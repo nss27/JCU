@@ -70,7 +70,7 @@ var addressToGoordinate = async (list) => {
 					if(!isNull(el[5])) {
 						for(var i = 0; i < files.length; i++) {
 							if(files[i][0] == el[5]) {
-								marker.image = new kakao.maps.MarkerImage(`${window.location.host}/images/${files[i][1]}`, new kakao.maps.Size(22, 22), {offset: new kakao.maps.Point(11, 11)})
+								marker.image = new kakao.maps.MarkerImage(`/images/${files[i][1]}`, new kakao.maps.Size(22, 22), {offset: new kakao.maps.Point(11, 11)})
 								break
 							}
 						}
