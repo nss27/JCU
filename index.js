@@ -1,6 +1,7 @@
 var list = []
 var files = []
 var map = null
+var path = ''
 
 var isNull = (data) => {
 	return data == '' || data == null || data == undefined
@@ -70,7 +71,7 @@ var addressToGoordinate = async (list) => {
 					if(!isNull(el[5])) {
 						for(var i = 0; i < files.length; i++) {
 							if(files[i][0] == el[5]) {
-								marker.image = new kakao.maps.MarkerImage(`${window.location.origin}/${window.location.pathname.includes('.')? '': window.location.pathname}images/${files[i][1]}`, new kakao.maps.Size(22, 22), {offset: new kakao.maps.Point(11, 11)})
+								marker.image = new kakao.maps.MarkerImage(`${window.location.origin}${path}/images/${files[i][1]}`, new kakao.maps.Size(22, 22), {offset: new kakao.maps.Point(11, 11)})
 								break
 							}
 						}
@@ -90,6 +91,14 @@ var addressToGoordinate = async (list) => {
 }
 
 $(async () => {
+	switch(window.location.host) {
+		case 'nss27.github.io':
+			path = '/JCU'
+			break;
+
+		default:
+			break;
+	}
 	map = await createMap()
 	files = (await getFile()).values
 	list = (await getData()).values
