@@ -1,54 +1,44 @@
-html, body {
+body {
     margin: 0;
-}
-
-#map {
     width: 100vw;
     height: 100vh;
 }
 
-#search {
+.control-bar {
     position: absolute;
     top: 0;
-    width: calc(100vw - 20px);
-    height: 50px;
-    margin: 10px;
-    background-color: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-    display: grid;
-    grid-template-columns: 1fr 45px;
-    align-items: center;
+    width: calc(100% - 10px);
     z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 5px;
+    margin: 5px;
 }
 
-#search input {
-    height: 100%;
-    border: none;
-    padding: 0 15px;
-    font-size: 18px;
+.control-bar jcu-search-bar {
+    width: 100%;
 }
 
-#search ion-icon {
-    font-size: 32px;
-}
-
-#gps {
+.card-list {
     position: absolute;
     bottom: 0;
-    right: 0;
-    width: 50px;
-    height: 50px;
-    background-color: #fff;
-    border-radius: 50%;
-    z-index: 1;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    margin: 10px;
+    z-index: 1;
+    margin: 5px;
+    margin-right: 0;
+    overflow-x: scroll;
+    gap: 5px;
+    width: calc(100% - 5px);
 }
 
-#gps ion-icon {
-    font-size: 24px;
+.card-list jcu-info-card:last-child {
+    margin-right: 5px;
+}
+
+@media (max-width: 320px) {
+    .control-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
 }
