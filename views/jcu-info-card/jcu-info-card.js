@@ -44,7 +44,7 @@ export default class JcuInfoCard extends HTMLElement {
         this.shadowRoot.querySelector('.name').innerText = data[1]
         this.shadowRoot.querySelector('.addr').innerText = data[3]
         this.shadowRoot.querySelector('.tag').innerText = data[4]
-        if(data.length > 6 && !com.isNull(data[5])) {
+        if(!com.isNull(data[3]) && !com.isNull(data[5])) {
             const img = document.createElement('img')
             img.setAttribute('src', `${com.rootPath()}/images/${data[5]}`)
             this.shadowRoot.querySelector('.card').appendChild(img)
