@@ -46,7 +46,7 @@ export default class JcuMap extends HTMLElement {
         const container = this.shadowRoot.querySelector('#map')
         const options = {
             center: new kakao.maps.LatLng(33.450701, 126.570667),
-            level: 7
+            level: 6
         }
 
         return new kakao.maps.Map(container, options)
@@ -61,16 +61,34 @@ export default class JcuMap extends HTMLElement {
             if(data[3]) {
                 geocoder.addressSearch(data[3], (result, status) => {
                     if (status === kakao.maps.services.Status.OK) {
-                        const marker = {
+                        const markerOption = {
                             map: this.map,
                             position: new kakao.maps.LatLng(result[0].y, result[0].x)
                         }
 
-                        if(!com.isNull(data[5])) marker.image = new kakao.maps.MarkerImage(`${com.rootPath()}/images/${data[5]}`, new kakao.maps.Size(22, 22), {offset: new kakao.maps.Point(11, 11)})
+                        if(!com.isNull(data[5])) markerOption.image = new kakao.maps.MarkerImage(`${com.rootPath()}/images/${data[5]}`, new kakao.maps.Size(22, 22), {offset: new kakao.maps.Point(11, 11)})
 
-                        data.push(
-                            new kakao.maps.Marker(marker)
-                        )
+                        const marker = new kakao.maps.Marker(markerOption)
+                        
+                        kakao.maps.event.addListener(marker, 'click', () => {
+                            if(this.map.getLevel() != 3) this.map.setLevel(3)
+                            this.map.setCenter(marker.getPosition())
+                        })
+                        data.push(marker)
+
+                        const content = document.createElement('div')
+                        content.style.fontSize = '8px'
+                        content.style.fontWeight = 'bold'
+                        content.style.backgroundColor = '#00000085'
+                        content.style.color = '#ffffff'
+                        content.innerText = data[1]
+
+                        const customOverlay = new kakao.maps.CustomOverlay({
+                            map: this.map,
+                            content: content,
+                            position: marker.getPosition(),
+                            yAnchor: -0.75
+                        })
                     }
                 })
             }

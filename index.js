@@ -81,7 +81,10 @@ window.addEventListener('load', async () => {
 
 	cardList.addEventListener('click', e => {
 		const data = e.target.data
-		if(!com.isNull(data[3])) jcuMap.map.panTo(data[data.length - 1].getPosition())
+		if(!com.isNull(data[3])) {
+			if(jcuMap.map.getLevel() != 3) jcuMap.map.setLevel(3)
+			jcuMap.map.setCenter(data[data.length - 1].getPosition())
+		}
 	}, {
 		capture: true
 	})
