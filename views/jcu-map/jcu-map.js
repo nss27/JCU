@@ -77,7 +77,7 @@ export default class JcuMap extends HTMLElement {
                         data.push(marker)
 
                         const content = document.createElement('div')
-                        content.style.fontSize = '8px'
+                        content.style.fontSize = '12px'
                         content.style.fontWeight = 'bold'
                         content.style.backgroundColor = '#00000085'
                         content.style.color = '#ffffff'
