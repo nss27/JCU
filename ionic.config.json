@@ -1,0 +1,7 @@
+{
+  "name": "JCU",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue"
+}
