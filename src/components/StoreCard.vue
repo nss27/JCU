@@ -1,19 +1,20 @@
 <template>
-    <ion-card>
+    <ion-card @click="openStoreModel()">
         <img :src="'assets/images/' + storeInfo['marker-img']" class="store-icon">
         <ion-card-header>
-            <ion-card-subtitle>{{storeInfo['store-type']}}</ion-card-subtitle>
-            <ion-card-title>{{storeInfo['store-name']}}</ion-card-title>
+            <ion-card-subtitle>{{ storeInfo['store-type'] }}</ion-card-subtitle>
+            <ion-card-title>{{ storeInfo['store-name'] }}</ion-card-title>
         </ion-card-header>
         <ion-card-content>
-            <div class="hashtag">{{storeInfo['hashtag']}}</div>
+            <div class="hashtag">{{ storeInfo['hashtag'] }}</div>
         </ion-card-content>
     </ion-card>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle } from '@ionic/vue'
+import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, modalController } from '@ionic/vue'
+import StoreModal from '@/components/StoreModal.vue'
 
 export default defineComponent({
     name: 'StoreCard',
@@ -25,6 +26,17 @@ export default defineComponent({
         IonCardSubtitle,
         IonCardTitle
     },
+    methods: {
+        async openStoreModel() {
+            const modal = await modalController.create({
+                component: StoreModal,
+                componentProps: {
+                    'storeInfo': this.storeInfo
+                }
+            });
+            modal.present();
+        }
+    }
 })
 </script>
 

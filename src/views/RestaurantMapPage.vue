@@ -10,7 +10,7 @@
       <ion-toolbar>
         <ion-searchbar @ionInput="searchWordChange($event)"></ion-searchbar>
         <ion-buttons slot="end">
-          <ion-button @click="viewChange($event)">
+          <ion-button @click="viewChange()">
             <ion-icon slot="icon-only" :icon="viewTypeIcon"></ion-icon>
           </ion-button>
         </ion-buttons>
@@ -18,7 +18,7 @@
     </ion-header>
 
     <ion-content :fullscreen="true">
-      <KakaoMap v-if="viewType === 'map'" :addressList="addressList"></KakaoMap>
+      <KakaoMap v-if="viewType === 'map'" :storeList="storeList"></KakaoMap>
       <template v-else-if="viewType === 'list'">
         <template v-for="(item, index) in restaurantList" :key="index">
           <StoreCard v-if="item.show" :storeInfo="item"></StoreCard>
@@ -32,10 +32,10 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonSearchbar, IonButtons, IonBackButton, IonIcon, IonButton } from '@ionic/vue';
 import { map, list } from 'ionicons/icons';
 import { defineComponent } from 'vue';
+import _ from 'lodash';
 import StoreCard from '@/components/StoreCard.vue';
 import KakaoMap from '@/components/KakaoMap.vue';
 import GoogleApi from '@/utils/GoogleApi';
-// import Common from '@/utils/Common';
 
 export default defineComponent({
   name: 'RestaurantMap',
@@ -55,7 +55,7 @@ export default defineComponent({
   },
   data() {
     return {
-      restaurantList: new Array<any>(),
+      restaurantList: [] as any[],
       viewType: 'list',
       viewTypeIcon: map
     }
@@ -63,9 +63,11 @@ export default defineComponent({
   async mounted() {
     this.restaurantList = await GoogleApi.getSingleSheetData('맛집정보');
     this.restaurantList.map(item => item.show = true);
+
+    this.searchWordChange = _.debounce(this.searchWordChange, 350);
   },
   methods: {
-    viewChange(e: Event) {
+    viewChange() {
       this.viewTypeIcon = this.viewTypeIcon === map ? list : map;
 
       switch (this.viewTypeIcon) {
@@ -89,8 +91,8 @@ export default defineComponent({
     }
   },
   computed: {
-    addressList():any[] {
-      return this.restaurantList.filter(item => item.show).map(item => item['store-address'])
+    storeList(): any[] {
+      return this.restaurantList.filter(item => item.show)
     }
   }
 });

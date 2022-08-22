@@ -8,39 +8,73 @@ import Common from '@/utils/Common';
 
 export default defineComponent({
     name: 'KakaoMap',
-    props: ['addressList'],
+    props: ['storeList', 'width', 'height', 'center', 'level'],
     data() {
         return {
-            map: null
+            map: {} as any,
+            markers: [] as any[],
+            div: {} as HTMLDivElement
         }
     },
     mounted() {
-        const container = document.querySelector('#map');
-        const options = {
-            center: new window.kakao.maps.LatLng(35.821490634185395, 127.12554435309835),
-            level: 8
-        };
+        setTimeout(() => {
+            this.div = document.querySelector('#map') as HTMLDivElement;
 
-        this.map = new window.kakao.maps.Map(container, options);
-        if(this.addressList.length > 0) this.setAddressList(this.addressList);
+            if (!Common.isNull(this.width)) this.div.style.width = this.width;
+            if (!Common.isNull(this.height)) this.div.style.height = this.height;
+
+            const options = {
+                center: new window.kakao.maps.LatLng(35.821490634185395, 127.12554435309835),
+                level: 8
+            };
+
+            this.map = new window.kakao.maps.Map(this.div, options);
+
+            this.setAddressList(this.storeList);
+            this.setCenter(this.center);
+            this.setLevel(this.level);
+        }, 500);
     },
     methods: {
-        setAddressList(addressList: string[]) {
-            const geocoder = new window.kakao.maps.services.Geocoder();
+        setAddressList(storeList: any[]) {
+            this.removeMarkers();
 
-            addressList.forEach(address => {
-                if(!Common.isNull(address)) {
-                    geocoder.addressSearch(address, (result: any, status: any) => {
-                        if (status === window.kakao.maps.services.Status.OK) {
-                            const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
-                            const marker = new window.kakao.maps.Marker({
-                                map: this.map,
-                                position: coords
-                            });
-                        }
-                    });
-                }
-            })
+            if (!Common.isNull(storeList)) {
+                const geocoder = new window.kakao.maps.services.Geocoder();
+
+                storeList.forEach(store => {
+                    if (!Common.isNull(store['store-address'])) {
+                        geocoder.addressSearch(store['store-address'], (result: any, status: any) => {
+                            if (status === window.kakao.maps.services.Status.OK) {
+                                const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
+                                const marker = new window.kakao.maps.Marker({
+                                    map: this.map,
+                                    position: coords,
+                                    image: new window.kakao.maps.MarkerImage(`assets/images/${store['marker-img']}`, new window.kakao.maps.Size(22, 22), { offset: new window.kakao.maps.Point(11, 11) })
+                                });
+                                this.markers.push(marker);
+                            }
+                        });
+                    }
+                });
+            }
+        },
+        removeMarkers() {
+            if (!Common.isNull(this.markers)) {
+                this.markers.map(marker => marker.setMap(null));
+                this.markers = [];
+            }
+        },
+        setCenter(position: number[]) {
+            if (!Common.isNull(position)) this.map.setCenter(new window.kakao.maps.LatLng(...position));
+        },
+        setLevel(level: number) {
+            if (!Common.isNull(level)) this.map.setLevel(level);
+        }
+    },
+    watch: {
+        storeList() {
+            this.setAddressList(this.storeList);
         }
     }
 })

@@ -9,7 +9,11 @@ export default class Common {
           break;
 
         case "object":
-          result = data === {};
+          if (Array.isArray(data)) {
+            result = data.length === 0;
+          } else {
+            result = data === {};
+          }
           break;
 
         default:
