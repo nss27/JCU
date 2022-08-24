@@ -2,7 +2,7 @@ type MajorDimension = "ROWS" | "COLUMNS";
 
 export default class GoogleApi {
   static spreadsheetId = "1fPWASjJ-DSsDFv-ctdQecYb3PFk716L7E6BYCZt6r1Q";
-  static key = "AIzaSyAmUJ3M2PjOwyX2piWYGz0UXrXhZn_dZPk";
+  static key = "AIzaSyD9oysquqycaA0YLekjnbLwF26-YKJ807o";
 
   static async getSingleSheetData(
     range: string,
