@@ -1,5 +1,5 @@
 <template>
-    <div id="map"></div>
+    <div :id="selector" class="kakao-map-container"></div>
 </template>
 
 <script lang="ts">
@@ -8,20 +8,21 @@ import Common from '@/utils/Common';
 
 export default defineComponent({
     name: 'KakaoMap',
-    props: ['storeList', 'width', 'height', 'center', 'level'],
+    props: ['width', 'height', 'center', 'level', 'delay', 'markerOptions'],
     data() {
         return {
             map: {} as any,
+            div: {} as HTMLDivElement,
             markers: [] as any[],
-            div: {} as HTMLDivElement
+            selector: `map${Date.now()}`
         }
     },
     mounted() {
         setTimeout(() => {
-            this.div = document.querySelector('#map') as HTMLDivElement;
+            this.div = document.querySelector(`#${this.selector}`) as HTMLDivElement;
 
-            if (!Common.isNull(this.width)) this.div.style.width = this.width;
-            if (!Common.isNull(this.height)) this.div.style.height = this.height;
+            this.setWidth(this.width);
+            this.setHeight(this.height);
 
             const options = {
                 center: new window.kakao.maps.LatLng(35.821490634185395, 127.12554435309835),
@@ -30,58 +31,77 @@ export default defineComponent({
 
             this.map = new window.kakao.maps.Map(this.div, options);
 
-            this.setAddressList(this.storeList);
             this.setCenter(this.center);
             this.setLevel(this.level);
-        }, 500);
+            this.setMarkers(this.markerOptions);
+        }, Common.isNull(this.delay) ? 0 : this.delay);
     },
     methods: {
-        setAddressList(storeList: any[]) {
-            this.removeMarkers();
-
-            if (!Common.isNull(storeList)) {
-                const geocoder = new window.kakao.maps.services.Geocoder();
-
-                storeList.forEach(store => {
-                    if (!Common.isNull(store['store-address'])) {
-                        geocoder.addressSearch(store['store-address'], (result: any, status: any) => {
-                            if (status === window.kakao.maps.services.Status.OK) {
-                                const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
-                                const marker = new window.kakao.maps.Marker({
-                                    map: this.map,
-                                    position: coords,
-                                    image: new window.kakao.maps.MarkerImage(`assets/images/${store['marker-img']}`, new window.kakao.maps.Size(22, 22), { offset: new window.kakao.maps.Point(11, 11) })
-                                });
-                                this.markers.push(marker);
-                            }
-                        });
-                    }
-                });
-            }
+        setWidth(width: string) {
+            if (!Common.isNull(width)) this.div.style.width = width;
         },
-        removeMarkers() {
-            if (!Common.isNull(this.markers)) {
-                this.markers.map(marker => marker.setMap(null));
-                this.markers = [];
-            }
+        setHeight(height: string) {
+            if (!Common.isNull(height)) this.div.style.height = height;
         },
-        setCenter(position: number[]) {
-            if (!Common.isNull(position)) this.map.setCenter(new window.kakao.maps.LatLng(...position));
+        setCenter(position: any) {
+            if (!Common.isNull(position)) this.map.setCenter(position);
         },
         setLevel(level: number) {
             if (!Common.isNull(level)) this.map.setLevel(level);
+        },
+        setMarkers(options: any[]) {
+            this.delMarkers();
+
+            if (!Common.isNull(options)) {
+                options
+                    .map(option => {
+                        option.map = this.map;
+                        return option;
+                    })
+                    .forEach(option => {
+                        const markerInfo = {
+                            marker: new window.kakao.maps.Marker(option),
+                            overlay: new window.kakao.maps.CustomOverlay(option)
+                        };
+
+                        this.markers.push(markerInfo);
+
+                        window.kakao.maps.event.addListener(markerInfo.marker, 'click', () => this.$emit('markerClick', markerInfo));
+                    })
+            }
+        },
+        delMarkers() {
+            if (!Common.isNull(this.markers)) {
+                this.markers.forEach(({ marker, overlay }) => {
+                    marker.setMap(null);
+                    overlay.setMap(null);
+                });
+                this.markers = [];
+            }
         }
     },
     watch: {
-        storeList() {
-            this.setAddressList(this.storeList);
+        width() {
+            this.setWidth(this.width);
+        },
+        height() {
+            this.setHeight(this.height);
+        },
+        center() {
+            this.setCenter(this.center);
+        },
+        level() {
+            this.setLevel(this.level);
+        },
+        markerOptions() {
+            this.setMarkers(this.markerOptions);
         }
     }
 })
 </script>
 
 <style scoped>
-#map {
+.kakao-map-container {
     width: 100%;
     height: 100%;
 }

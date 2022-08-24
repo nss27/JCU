@@ -9,59 +9,57 @@
     </ion-header>
 
     <ion-content>
-        <KakaoMap height="50%" level="3" :center="storeGps"></KakaoMap>
-        <ion-card>
-            <img :src="'assets/images/' + storeInfo['marker-img']" class="store-icon">
-            <ion-card-header>
-                <ion-card-subtitle>{{ storeInfo['store-type'] }}</ion-card-subtitle>
-                <ion-card-title>{{ storeInfo['store-name'] }}</ion-card-title>
-            </ion-card-header>
-            <ion-card-content>
-                <div class="hashtag">{{ storeInfo['hashtag'] }}</div>
-            </ion-card-content>
-        </ion-card>
+        <KakaoMap height="50%" level="3" :center="storeInfo['store-position']" delay="500"
+            :markerOptions="storeMarkerOptions" v-if="storeInfo['store-position']">
+        </KakaoMap>
+        <ion-list lines="none">
+            <ion-item>
+                <ion-label class="ion-text-wrap">
+                    <ion-text color="primary">
+                        <p>{{ storeInfo['hashtag'] }}</p>
+                    </ion-text>
+                    <br>
+                    <h1>주소</h1>
+                    <p>{{ storeAddress }}</p>
+                </ion-label>
+            </ion-item>
+        </ion-list>
     </ion-content>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, IonContent, modalController } from '@ionic/vue'
+import { IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, IonContent, modalController, IonList, IonItem, IonLabel, IonText } from '@ionic/vue'
 import KakaoMap from '@/components/KakaoMap.vue';
+import Common from '@/utils/Common';
 
 export default defineComponent({
     name: 'StoreModal',
     props: ['storeInfo'],
     components: {
-        IonCard,
-        IonCardContent,
-        IonCardHeader,
-        IonCardSubtitle,
-        IonCardTitle,
         IonHeader,
         IonToolbar,
         IonButtons,
         IonButton,
         IonTitle,
         IonContent,
+        IonList,
+        IonItem,
+        IonLabel,
+        IonText,
         KakaoMap
-    },
-    data() {
-        return {
-            storeGps: [] as number[]
-        }
-    },
-    mounted() {
-        const geocoder = new window.kakao.maps.services.Geocoder();
-
-        geocoder.addressSearch(this.storeInfo['store-address'], (result: any, status: any) => {
-            if (status === window.kakao.maps.services.Status.OK) {
-                this.storeGps = [result[0].y, result[0].x];
-            }
-        });
     },
     methods: {
         close() {
             modalController.dismiss();
+        }
+    },
+    computed: {
+        storeMarkerOptions(): any[] {
+            return Common.isNull(this.storeInfo['store-marker-option']) ? [] : [this.storeInfo['store-marker-option']];
+        },
+        storeAddress() {
+            return Common.isNull(this.storeInfo['store-address']) ? '조회된 주소가 없습니다' : this.storeInfo['store-address'];
         }
     },
 })

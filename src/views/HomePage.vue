@@ -1,5 +1,5 @@
 <template>
-  <ion-page mode="ios">
+  <ion-page>
     <ion-header :translucent="true">
       <ion-toolbar>
         <ion-title>Home</ion-title>
