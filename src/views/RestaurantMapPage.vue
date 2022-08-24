@@ -60,9 +60,13 @@ export default defineComponent({
       storeList: [] as any[],
       viewType: 'list',
       viewTypeIcon: map,
+      modal: null as any,
+      modalIsOpen: false
     }
   },
   async mounted() {
+    window.addEventListener('popstate', this.historyCtrl);
+
     this.storeList = await GoogleApi.getSingleSheetData('맛집정보');
 
     if (!Common.isNull(this.storeList)) {
@@ -93,6 +97,9 @@ export default defineComponent({
 
     this.searchWordChange = _.debounce(this.searchWordChange, 350);
   },
+  unmounted() {
+    window.removeEventListener('popstate', this.historyCtrl);
+  },
   methods: {
     viewChange() {
       this.viewTypeIcon = this.viewTypeIcon === map ? list : map;
@@ -117,7 +124,7 @@ export default defineComponent({
       });
     },
     async openStoreModel(storeInfo: any) {
-      const modal = await modalController.create({
+      this.modal = await modalController.create({
         component: StoreModal,
         componentProps: {
           'storeInfo': storeInfo
@@ -126,7 +133,18 @@ export default defineComponent({
         presentingElement: document.querySelector('#restaurantMapPage') as HTMLElement,
         canDismiss: true
       });
-      modal.present();
+
+      this.modal.present();
+
+      this.modal.onDidDismiss().then(() => {
+        if (this.modalIsOpen) {
+          this.modalIsOpen = false;
+          history.back();
+        }
+      })
+
+      this.modalIsOpen = true;
+      history.pushState(null, '', `${location.href}#modal`);
     },
     markerClick(data: { marker: any, overlay: any }) {
       for (let i = 0; i < this.storeList.length; i++) {
@@ -134,6 +152,12 @@ export default defineComponent({
           this.openStoreModel(this.storeList[i]);
           break;
         }
+      }
+    },
+    historyCtrl() {
+      if (this.modalIsOpen) {
+        this.modal.dismiss();
+        this.modalIsOpen = false;
       }
     }
   },
