@@ -28,15 +28,13 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, toRefs } from 'vue'
+import { defineComponent } from 'vue'
 import { IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, IonContent, modalController, IonList, IonItem, IonLabel, IonText } from '@ionic/vue'
 import KakaoMap from '@/components/KakaoMap.vue';
 import Common from '@/utils/Common';
 
 export default defineComponent({
-    props: {
-        storeInfo: Object as any
-    },
+    props: ['storeInfo'],
     components: {
         IonHeader,
         IonToolbar,
@@ -50,25 +48,17 @@ export default defineComponent({
         IonText,
         KakaoMap
     },
-    setup(props) {
-        const { storeInfo } = toRefs(props);
-        const close = () => {
+    methods: {
+        close() {
             modalController.dismiss();
         }
-
-        const storeMarkerOptions = computed(() => {
-            return Common.isNull(storeInfo.value['store-marker-option']) ? [] : [storeInfo.value['store-marker-option']];
-        });
-
-        const storeAddress = computed(() => {
-            return Common.isNull(storeInfo.value['store-address']) ? '조회된 주소가 없습니다' : storeInfo.value['store-address'];
-        });
-
-        return {
-            close,
-            storeMarkerOptions,
-            storeAddress,
-            // storeInfo
+    },
+    computed: {
+        storeMarkerOptions(): any[] {
+            return Common.isNull(this.storeInfo['store-marker-option']) ? [] : [this.storeInfo['store-marker-option']];
+        },
+        storeAddress() {
+            return Common.isNull(this.storeInfo['store-address']) ? '조회된 주소가 없습니다' : this.storeInfo['store-address'];
         }
     },
 })

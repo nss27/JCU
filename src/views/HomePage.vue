@@ -6,7 +6,7 @@
       </ion-toolbar>
     </ion-header>
 
-    <ion-content :fullscreen="true">
+    <ion-content>
       <ion-header collapse="condense">
         <ion-toolbar>
           <ion-title size="large">Home</ion-title>
@@ -23,7 +23,6 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton } from 
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'HomePage',
   components: {
     IonContent,
     IonHeader,

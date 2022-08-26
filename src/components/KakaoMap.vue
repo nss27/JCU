@@ -3,59 +3,55 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, onMounted, watch, toRefs } from 'vue'
 import Common from '@/utils/Common';
 
 export default defineComponent({
-    name: 'KakaoMap',
-    props: ['width', 'height', 'center', 'level', 'delay', 'markerOptions'],
-    data() {
-        return {
-            map: {} as any,
-            div: {} as HTMLDivElement,
-            markers: [] as any[],
-            selector: `map${Date.now()}`
-        }
+    props: {
+        width: String,
+        height: String,
+        center: Array,
+        level: Number,
+        delay: Number,
+        markerOptions: Array
     },
-    mounted() {
-        setTimeout(() => {
-            this.div = document.querySelector(`#${this.selector}`) as HTMLDivElement;
+    setup(props, { emit }) {
+        const selector = `map${Date.now()}`;
+        const {
+            width,
+            height,
+            center,
+            delay,
+            level,
+            markerOptions
+        } = toRefs(props);
+        let map = null as any,
+            div = {} as HTMLDivElement,
+            markers = [] as any[];
 
-            this.setWidth(this.width);
-            this.setHeight(this.height);
+        const setWidth = (width: string) => {
+            if (!Common.isNull(width)) div.style.width = width;
+        };
 
-            const options = {
-                center: new window.kakao.maps.LatLng(35.821490634185395, 127.12554435309835),
-                level: 8
-            };
+        const setHeight = (height: string) => {
+            if (!Common.isNull(height)) div.style.height = height;
+        };
 
-            this.map = new window.kakao.maps.Map(this.div, options);
+        const setCenter = (position: any) => {
+            if (!Common.isNull(position)) map.setCenter(position);
+        };
 
-            this.setCenter(this.center);
-            this.setLevel(this.level);
-            this.setMarkers(this.markerOptions);
-        }, Common.isNull(this.delay) ? 0 : this.delay);
-    },
-    methods: {
-        setWidth(width: string) {
-            if (!Common.isNull(width)) this.div.style.width = width;
-        },
-        setHeight(height: string) {
-            if (!Common.isNull(height)) this.div.style.height = height;
-        },
-        setCenter(position: any) {
-            if (!Common.isNull(position)) this.map.setCenter(position);
-        },
-        setLevel(level: number) {
-            if (!Common.isNull(level)) this.map.setLevel(level);
-        },
-        setMarkers(options: any[]) {
-            this.delMarkers();
+        const setLevel = (level: number) => {
+            if (!Common.isNull(level)) map.setLevel(level);
+        };
+
+        const setMarkers = (options: any[]) => {
+            delMarkers();
 
             if (!Common.isNull(options)) {
                 options
                     .map(option => {
-                        option.map = this.map;
+                        option.map = map;
                         return option;
                     })
                     .forEach(option => {
@@ -64,37 +60,55 @@ export default defineComponent({
                             overlay: new window.kakao.maps.CustomOverlay(option)
                         };
 
-                        this.markers.push(markerInfo);
+                        markers.push(markerInfo);
 
-                        window.kakao.maps.event.addListener(markerInfo.marker, 'click', () => this.$emit('markerClick', markerInfo));
+                        window.kakao.maps.event.addListener(markerInfo.marker, 'click', () => emit('markerClick', markerInfo));
                     })
             }
-        },
-        delMarkers() {
-            if (!Common.isNull(this.markers)) {
-                this.markers.forEach(({ marker, overlay }) => {
+        };
+
+        const delMarkers = () => {
+            if (!Common.isNull(markers)) {
+                markers.forEach(({ marker, overlay }) => {
                     marker.setMap(null);
                     overlay.setMap(null);
                 });
-                this.markers = [];
+                markers = [];
             }
-        }
-    },
-    watch: {
-        width() {
-            this.setWidth(this.width);
-        },
-        height() {
-            this.setHeight(this.height);
-        },
-        center() {
-            this.setCenter(this.center);
-        },
-        level() {
-            this.setLevel(this.level);
-        },
-        markerOptions() {
-            this.setMarkers(this.markerOptions);
+        };
+
+        watch(width, () => setWidth(width.value as string));
+
+        watch(height, () => setHeight(height.value as string));
+
+        watch(center, () => setCenter(center.value));
+
+        watch(level, () => setLevel(level.value as number));
+
+        watch(markerOptions, () => setMarkers(markerOptions.value as any[]));
+
+        onMounted(() => {
+            setTimeout(() => {
+                div = document.querySelector(`#${selector}`) as HTMLDivElement;
+
+                setWidth(width.value as string);
+                setHeight(height.value as string);
+
+                const options = {
+                    center: new window.kakao.maps.LatLng(35.821490634185395, 127.12554435309835),
+                    level: 8
+                };
+
+                map = new window.kakao.maps.Map(div, options);
+
+                setCenter(center.value);
+                setLevel(level.value as number);
+                setMarkers(markerOptions.value as any[]);
+            }, delay.value)
+        });
+
+        return {
+            selector
         }
     }
 })
