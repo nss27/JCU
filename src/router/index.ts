@@ -1,29 +1,29 @@
-import { createRouter, createWebHistory } from '@ionic/vue-router';
-import { RouteRecordRaw } from 'vue-router';
-import HomePage from '@/views/HomePage.vue'
-import RestaurantMap from '@/views/RestaurantMapPage.vue';
-import Restaurant from '@/views/RestaurantPage.vue';
+import { createRouter, createWebHistory } from "@ionic/vue-router";
+import { RouteRecordRaw } from "vue-router";
+import HomePage from "@/views/HomePage.vue";
+import RestaurantListMap from "@/views/RestaurantListMapPage.vue";
+import RestaurantPage from "@/views/RestaurantPage.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: '/',
-    component: HomePage
+    path: "/",
+    component: HomePage,
   },
   {
-    path: '/restaurantMap',
-    name: 'RestaurantMap',
-    component: RestaurantMap
+    path: "/restaurantListMap",
+    name: "RestaurantListMap",
+    component: RestaurantListMap,
   },
   {
-    path: '/restaurant/:no',
-    name: 'Restaurant',
-    component: Restaurant
-  }
-]
+    path: "/restaurant/:no",
+    name: "Restaurant",
+    component: RestaurantPage,
+  },
+];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
-  routes
-})
+  routes,
+});
 
-export default router
+export default router;

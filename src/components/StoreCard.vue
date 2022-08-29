@@ -16,9 +16,7 @@ import { defineComponent } from 'vue'
 import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle } from '@ionic/vue'
 
 export default defineComponent({
-    props: {
-        storeInfo: Object as any
-    },
+    props: ['storeInfo'],
     components: {
         IonCard,
         IonCardContent,
