@@ -1,6 +1,6 @@
 <template>
     <ion-page>
-        <ion-header>
+        <ion-header :translucent="true">
             <ion-toolbar>
                 <ion-buttons>
                     <ion-back-button></ion-back-button>
@@ -19,10 +19,16 @@
                         <ion-text color="primary">
                             <p>{{ storeInfo['hashtag'] }}</p>
                         </ion-text>
-                        <br>
+                    </ion-label>
+                </ion-item>
+                <ion-item>
+                    <ion-label class="ion-text-wrap">
                         <h1>주소</h1>
                         <p>{{ storeAddress }}</p>
                     </ion-label>
+                    <ion-button fill="clear" :href="wayfinding" target="_blank" v-if="storeInfo['store-position']">
+                        <ion-icon :icon="navigate" slot="icon-only"></ion-icon>
+                    </ion-button>
                 </ion-item>
             </ion-list>
         </ion-content>
@@ -31,11 +37,26 @@
 
 <script lang="ts">
 import { computed, defineComponent, onMounted, ref } from 'vue'
-import { IonPage, IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonContent, IonList, IonItem, IonLabel, IonText } from '@ionic/vue'
+import {
+    IonPage,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonBackButton,
+    IonTitle,
+    IonContent,
+    IonList,
+    IonItem,
+    IonLabel,
+    IonText,
+    IonButton,
+    IonIcon
+} from '@ionic/vue'
 import KakaoMap from '@/components/KakaoMap.vue';
 import Common from '@/utils/Common';
 import GoogleApi from '@/utils/GoogleApi';
 import { useRoute } from 'vue-router';
+import { navigate } from 'ionicons/icons';
 
 export default defineComponent({
     components: {
@@ -50,13 +71,38 @@ export default defineComponent({
         IonItem,
         IonLabel,
         IonText,
-        KakaoMap
+        KakaoMap,
+        IonButton,
+        IonIcon
     },
     setup() {
         const route = useRoute();
         let storeInfo = ref({} as any);
-        const storeMarkerOptions = computed(() => Common.isNull(storeInfo.value['store-marker-option']) ? [] : [storeInfo.value['store-marker-option']]);
-        const storeAddress = computed(() => Common.isNull(storeInfo.value['store-address']) ? '조회된 주소가 없습니다' : storeInfo.value['store-address']);
+
+        const storeMarkerOptions = computed(() => {
+            if (Common.isNull(storeInfo.value['store-marker-option'])) {
+                return [];
+            } else {
+                return [storeInfo.value['store-marker-option']];
+            }
+        });
+
+        const storeAddress = computed(() => {
+            if (Common.isNull(storeInfo.value['store-address'])) {
+                return '조회된 주소가 없습니다';
+            } else {
+                return storeInfo.value['store-address'];
+            }
+        });
+
+        const wayfinding = computed(() => {
+            if (Common.isNull(storeInfo.value['store-address'])) {
+                return undefined;
+            } else {
+                const { La, Ma } = storeInfo.value['store-position'];
+                return `https://map.kakao.com/link/to/${storeInfo.value['store-name']},${Ma},${La}`;
+            }
+        });
 
         onMounted(async () => {
             const list = await GoogleApi.getSingleSheetData('맛집정보') as any[];
@@ -85,7 +131,9 @@ export default defineComponent({
         return {
             storeInfo,
             storeMarkerOptions,
-            storeAddress
+            storeAddress,
+            navigate,
+            wayfinding
         }
     }
 })

@@ -1,9 +1,7 @@
-type MajorDimension = "ROWS" | "COLUMNS";
+const spreadsheetId = "1fPWASjJ-DSsDFv-ctdQecYb3PFk716L7E6BYCZt6r1Q";
+const key = "AIzaSyD9oysquqycaA0YLekjnbLwF26-YKJ807o";
 
 export default class GoogleApi {
-  static spreadsheetId = "1fPWASjJ-DSsDFv-ctdQecYb3PFk716L7E6BYCZt6r1Q";
-  static key = "AIzaSyD9oysquqycaA0YLekjnbLwF26-YKJ807o";
-
   static async getSingleSheetData(
     range: string,
     majorDimension?: MajorDimension
@@ -12,7 +10,7 @@ export default class GoogleApi {
       majorDimension = majorDimension ? majorDimension : "ROWS";
 
       const res = await fetch(
-        `https://sheets.googleapis.com/v4/spreadsheets/${this.spreadsheetId}/values/${range}?majorDimension=${majorDimension}&key=${this.key}`
+        `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?majorDimension=${majorDimension}&key=${key}`
       );
 
       const json = await res.json();
@@ -50,11 +48,9 @@ export default class GoogleApi {
       majorDimension = majorDimension ? majorDimension : "ROWS";
 
       const res = await fetch(
-        `https://sheets.googleapis.com/v4/spreadsheets/${
-          this.spreadsheetId
-        }/values:batchGet?ranges=${ranges.join(
+        `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values:batchGet?ranges=${ranges.join(
           "&ranges="
-        )}&majorDimension=${majorDimension}&key=${this.key}`
+        )}&majorDimension=${majorDimension}&key=${key}`
       );
 
       const json = await res.json();

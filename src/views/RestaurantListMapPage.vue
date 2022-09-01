@@ -8,7 +8,7 @@
                 <ion-title>맛집지도</ion-title>
             </ion-toolbar>
             <ion-toolbar>
-                <ion-searchbar v-model="sotreSearch"></ion-searchbar>
+                <ion-searchbar v-model="sotreSearch" :debounce="250"></ion-searchbar>
             </ion-toolbar>
             <ion-toolbar>
                 <ion-chip v-for="(item, index) in storeTypes" :key="index" :outline="!(item === storeTypeSearch)"
@@ -31,7 +31,6 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonSearchbar, Ion
 import { defineComponent, onMounted, ref, watch } from 'vue';
 import StoreCard from '@/components/StoreCard.vue';
 import GoogleApi from '@/utils/GoogleApi';
-import { debounce } from 'lodash';
 
 export default defineComponent({
     components: {
@@ -52,7 +51,7 @@ export default defineComponent({
         const storeTypeSearch = ref('전체');
         const sotreSearch = ref('');
 
-        const searchWordChange = debounce(() => {
+        const searchWordChange = () => {
             storeList.value.map(store => {
                 const storeName = store['store-name'] as string;
                 const storeType = store['store-type'] as string;
@@ -68,8 +67,8 @@ export default defineComponent({
                 }
 
                 return store;
-            });
-        }, 350);
+            })
+        };
 
         watch(sotreSearch, searchWordChange);
         watch(storeTypeSearch, searchWordChange);
@@ -81,7 +80,6 @@ export default defineComponent({
 
         return {
             storeList,
-            searchWordChange,
             storeTypes,
             storeTypeSearch,
             sotreSearch
@@ -91,10 +89,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.swiper {
-    height: 100%;
-}
-
 ion-searchbar {
     padding-top: 0;
     padding-bottom: 0;
