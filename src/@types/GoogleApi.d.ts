@@ -1,0 +1,1 @@
+type MajorDimension = "ROWS" | "COLUMNS";

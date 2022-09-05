@@ -3,6 +3,7 @@ import { RouteRecordRaw } from "vue-router";
 import HomePage from "@/views/HomePage.vue";
 import RestaurantListMap from "@/views/RestaurantListMapPage.vue";
 import RestaurantPage from "@/views/RestaurantPage.vue";
+import CharactorLookalikePage from "@/views/CharactorLookalikePage.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -18,6 +19,11 @@ const routes: Array<RouteRecordRaw> = [
     path: "/restaurant/:no",
     name: "Restaurant",
     component: RestaurantPage,
+  },
+  {
+    path: "/charactorLookalike",
+    name: "CharactorLookalike",
+    component: CharactorLookalikePage,
   },
 ];
 

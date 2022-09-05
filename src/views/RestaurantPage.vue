@@ -114,7 +114,7 @@ export default defineComponent({
 
                 geocoder.addressSearch(storeInfo.value['store-address'], (result: any, status: any) => {
                     if (status === window.kakao.maps.services.Status.OK) {
-                        storeInfo.value['store-position'] = new window.kakao.maps.LatLng(result[0].y, result[0].x);
+                        storeInfo.value['store-position'] = new window.kakao.maps.LatLng(Number(result[0].y), Number(result[0].x));
 
                         storeInfo.value['store-marker-option'] = {
                             position: storeInfo.value['store-position'],

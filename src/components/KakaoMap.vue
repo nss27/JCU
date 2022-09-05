@@ -1,15 +1,14 @@
 <template>
-    <div :id="selector" class="kakao-map-container"></div>
+    <div ref="div" class="kakao-map-container"></div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, watch, toRefs } from 'vue'
+import { defineComponent, onMounted, watch, toRefs, ref } from 'vue'
 import Common from '@/utils/Common';
 
 export default defineComponent({
     props: ['width', 'height', 'center', 'level', 'delay', 'markerOptions'],
     setup(props, { emit }) {
-        const selector = `map${Date.now()}`;
         const {
             width,
             height,
@@ -18,16 +17,16 @@ export default defineComponent({
             delay,
             markerOptions
         } = toRefs(props);
+        const div = ref({} as HTMLDivElement);
         let map = null as any,
-            div = {} as HTMLDivElement,
             markers = [] as any[];
 
         const setWidth = (width: string) => {
-            if (!Common.isNull(width) && !Common.isNull(div)) div.style.width = width;
+            if (!Common.isNull(width) && !Common.isNull(div.value)) div.value.style.width = width;
         };
 
         const setHeight = (height: string) => {
-            if (!Common.isNull(height) && !Common.isNull(div)) div.style.height = height;
+            if (!Common.isNull(height) && !Common.isNull(div.value)) div.value.style.height = height;
         };
 
         const setCenter = (position: any) => {
@@ -78,8 +77,6 @@ export default defineComponent({
 
         onMounted(() => {
             setTimeout(() => {
-                div = document.querySelector(`#${selector}`) as HTMLDivElement;
-
                 setWidth(width.value);
                 setHeight(height.value);
 
@@ -88,7 +85,7 @@ export default defineComponent({
                     level: 8
                 };
 
-                map = new window.kakao.maps.Map(div, options);
+                map = new window.kakao.maps.Map(div.value, options);
 
                 setCenter(center.value);
                 setLevel(level.value);
@@ -97,7 +94,7 @@ export default defineComponent({
         });
 
         return {
-            selector
+            div
         }
     }
 })

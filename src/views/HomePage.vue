@@ -10,7 +10,7 @@
             <ion-toolbar>
                 <ion-searchbar placeholder="닉네임을 입력하세요" v-model="player" @keypress="enter($event)"></ion-searchbar>
                 <ion-buttons slot="end">
-                    <ion-button fill="clear" @click="playerSearch()" id="search-btn">
+                    <ion-button fill="clear" @click="playerSearch()">
                         <ion-icon :icon="searchSharp" slot="icon-only"></ion-icon>
                     </ion-button>
                 </ion-buttons>
@@ -78,7 +78,7 @@
 
             <ion-content>
                 <ion-list>
-                    <ion-item button>
+                    <ion-item button router-link="/charactorLookalike">
                         사이퍼즈 캐릭터상 테스트
                     </ion-item>
                     <ion-item button router-link="/restaurantListMap">
@@ -171,8 +171,7 @@ export default defineComponent({
         const enter = (e: KeyboardEvent) => {
             if (e.key === 'Enter') {
                 setTimeout(() => {
-                    const btn = document.querySelector('#search-btn') as HTMLElement;
-                    btn.click();
+                    playerSearch();
                 }, 250);
             }
         };
