@@ -46,6 +46,7 @@
                 </ion-item>
                 <ion-item>
                     <ion-label>공식전 승률</ion-label>
+                    <ion-note :color="gameRatingRatioColor">{{ `${gameRatingRatio}%` }}</ion-note>
                 </ion-item>
                 <ion-item v-if="playerInfo.tierName">
                     <ion-grid>
@@ -123,7 +124,8 @@ import {
     IonCol,
     IonText,
     IonNote,
-    IonFooter
+    IonFooter,
+    alertController
 } from '@ionic/vue';
 import { computed, defineComponent, ref } from 'vue';
 import { searchSharp } from 'ionicons/icons';
@@ -165,18 +167,32 @@ export default defineComponent({
             });
             loading.present();
 
-            const playerIdJson = await NeopleApi.cyPlayerId({ nickname: encodeURI(player.value) });
+            try {
+                const playerIdJson = await NeopleApi.cyPlayerId({ nickname: encodeURI(player.value) });
 
-            if (Common.isNull(playerIdJson.rows)) {
-                playerId = '';
-                playerInfo.value = ref();
-            } else {
-                playerId = playerIdJson.rows[0].playerId;
-                playerInfo.value = ref(await NeopleApi.cyPlayerInfo({ playerId: playerId })).value;
-                console.log(playerInfo.value);
+                if (Common.isNull(playerIdJson.rows)) {
+                    playerId = '';
+                    playerInfo.value = ref();
+                } else {
+                    playerId = playerIdJson.rows[0].playerId;
+                    playerInfo.value = ref(await NeopleApi.cyPlayerInfo({ playerId: playerId })).value;
+                    console.log(playerInfo.value);
+                }
+
+                loading.dismiss();
+            } catch (error) {
+                const alert = await alertController.create({
+                    header: '오류 발생',
+                    subHeader: '네트워크를 확인해주세요',
+                    // message: '데이터를 처리하는 과정에서 오류가 발생하였습니다\n네트워크를 확인해주세요',
+                    buttons: ['OK'],
+                    mode: 'ios'
+                });
+
+                await alert.present();
+            } finally {
+                loading.dismiss();
             }
-
-            loading.dismiss();
         };
 
         const enter = (e: KeyboardEvent) => {
@@ -192,7 +208,9 @@ export default defineComponent({
 
             if (!Common.isNull(playerInfo) && !Common.isNull(playerInfo.value.records)) {
                 const game = (playerInfo.value.records as any[]).filter(game => game.gameTypeId === 'normal')[0];
-                ratio = Math.round(game.winCount / (game.winCount + game.loseCount) * 100);
+                if (game.winCount + game.loseCount > 0) {
+                    ratio = Math.round(game.winCount / (game.winCount + game.loseCount) * 100);
+                }
             }
 
             return ratio;
@@ -213,6 +231,34 @@ export default defineComponent({
             return color;
         });
 
+        const gameRatingRatio = computed(() => {
+            let ratio = 0;
+
+            if (!Common.isNull(playerInfo) && !Common.isNull(playerInfo.value.records)) {
+                const game = (playerInfo.value.records as any[]).filter(game => game.gameTypeId === 'rating')[0];
+                if (game.winCount + game.loseCount) {
+                    ratio = Math.round(game.winCount / (game.winCount + game.loseCount) * 100);
+                }
+            }
+
+            return ratio;
+        });
+
+        const gameRatingRatioColor = computed(() => {
+            let color = '';
+
+            if (gameRatingRatio.value >= 75) {
+                color = 'primary';
+            } else if (gameRatingRatio.value >= 50) {
+                color = 'success';
+            } else if (gameRatingRatio.value >= 25) {
+                color = 'warning';
+            } else {
+                color = 'danger';
+            }
+            return color;
+        });
+
         onIonViewDidLeave(() => {
             menuController.close('main-menu');
         });
@@ -224,7 +270,9 @@ export default defineComponent({
             playerInfo,
             enter,
             gameNormalRatio,
-            gameNormalRatioColor
+            gameNormalRatioColor,
+            gameRatingRatio,
+            gameRatingRatioColor
         }
     }
 });
