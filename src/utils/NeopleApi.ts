@@ -1,7 +1,7 @@
 import Common from "./Common";
 
 const key = "Ovr9f6SIy2k51tRJft9rThyaMArHqCsO";
-const proxyServer = "https://35.238.44.9:3000";
+const proxyServer = "https://jcu.duckdns.org:3000";
 
 export default class NeopleApi {
   static async cyPlayerId(data: CyPlayerIdReq) {

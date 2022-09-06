@@ -70,22 +70,31 @@
         </ion-content>
 
         <ion-menu content-id="main" menu-id="main-menu">
-            <ion-header>
-                <ion-toolbar>
-                    <ion-title>메뉴</ion-title>
-                </ion-toolbar>
-            </ion-header>
-
             <ion-content>
                 <ion-list>
                     <ion-item button router-link="/charactorLookalike">
                         사이퍼즈 캐릭터상 테스트
                     </ion-item>
-                    <ion-item button router-link="/restaurantListMap">
+                    <ion-item button router-link="/restaurantList">
                         맛집리스트
                     </ion-item>
                 </ion-list>
             </ion-content>
+
+            <ion-footer>
+                <ion-toolbar>
+                    <ion-buttons slot="start">
+                        <ion-button router-link="/openSourceLicenseList">
+                            open source
+                        </ion-button>
+                    </ion-buttons>
+                    <ion-buttons slot="end">
+                        <ion-button router-link="/openApiList">
+                            open api
+                        </ion-button>
+                    </ion-buttons>
+                </ion-toolbar>
+            </ion-footer>
         </ion-menu>
     </ion-page>
 </template>
@@ -113,7 +122,8 @@ import {
     IonRow,
     IonCol,
     IonText,
-    IonNote
+    IonNote,
+    IonFooter
 } from '@ionic/vue';
 import { computed, defineComponent, ref } from 'vue';
 import { searchSharp } from 'ionicons/icons';
@@ -140,7 +150,8 @@ export default defineComponent({
         IonRow,
         IonCol,
         IonText,
-        IonNote
+        IonNote,
+        IonFooter
     },
     setup() {
         const player = ref('');

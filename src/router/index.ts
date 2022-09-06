@@ -1,9 +1,12 @@
 import { createRouter, createWebHistory } from "@ionic/vue-router";
 import { RouteRecordRaw } from "vue-router";
 import HomePage from "@/views/HomePage.vue";
-import RestaurantListMap from "@/views/RestaurantListMapPage.vue";
+import RestaurantListPage from "@/views/RestaurantListPage.vue";
 import RestaurantPage from "@/views/RestaurantPage.vue";
 import CharactorLookalikePage from "@/views/CharactorLookalikePage.vue";
+import OpenSourceLicenseListPage from "@/views/OpenSourceLicenseListPage.vue";
+import OpenSourceLicensePage from "@/views/OpenSourceLicensePage.vue";
+import OpenApiListPage from "@/views/OpenApiListPage.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -11,19 +14,28 @@ const routes: Array<RouteRecordRaw> = [
     component: HomePage,
   },
   {
-    path: "/restaurantListMap",
-    name: "RestaurantListMap",
-    component: RestaurantListMap,
+    path: "/restaurantList",
+    component: RestaurantListPage,
   },
   {
     path: "/restaurant/:no",
-    name: "Restaurant",
     component: RestaurantPage,
   },
   {
     path: "/charactorLookalike",
-    name: "CharactorLookalike",
     component: CharactorLookalikePage,
+  },
+  {
+    path: "/openSourceLicenseList",
+    component: OpenSourceLicenseListPage,
+  },
+  {
+    path: "/openSourceLicense/:index",
+    component: OpenSourceLicensePage,
+  },
+  {
+    path: "/openApiList",
+    component: OpenApiListPage,
   },
 ];
 

@@ -1,5 +1,5 @@
 <template>
-    <ion-page id="RestaurantListMapPage">
+    <ion-page>
         <ion-header :translucent="true">
             <ion-toolbar>
                 <ion-buttons>

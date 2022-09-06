@@ -1,0 +1,14 @@
+[
+  {
+    "apiName": "사이퍼즈 API",
+    "homepage": "https://developers.neople.co.kr/",
+    "terms": "https://developers.neople.co.kr/contents/policy",
+    "logo": "/assets/images/neople-logo.png"
+  },
+  {
+    "apiName": "Kakao 지도 Javscript API",
+    "homepage": "https://apis.map.kakao.com/",
+    "terms": "https://developers.kakao.com/terms/latest/ko/site-terms",
+    "logo": null
+  }
+]
