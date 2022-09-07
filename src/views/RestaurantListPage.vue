@@ -74,7 +74,7 @@ export default defineComponent({
         watch(storeTypeSearch, searchWordChange);
 
         onMounted(async () => {
-            storeList.value = ref(await GoogleApi.getSingleSheetData('맛집정보')).value;
+            storeList.value = await GoogleApi.getSingleSheetData('맛집정보');
             storeList.value.forEach(store => store.show = true);
         });
 

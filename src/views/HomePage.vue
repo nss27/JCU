@@ -18,56 +18,88 @@
         </ion-header>
 
         <ion-content :fullscreen="true" id="main">
-            <ion-list lines="none" v-if="playerInfo">
-                <ion-item>
-                    <ion-grid class="no-padding">
-                        <ion-row v-if="playerInfo.clanName">
-                            <ion-col>
-                                <ion-text color="warning">
-                                    <small>{{ playerInfo.clanName }}</small>
-                                </ion-text>
-                            </ion-col>
-                        </ion-row>
-                        <ion-row class="ion-align-items-center">
-                            <ion-col size="10">
-                                <ion-text>
-                                    <h1 class="ion-no-margin">{{ playerInfo.nickname }}</h1>
-                                </ion-text>
-                            </ion-col>
-                            <ion-col size="2" class="ion-text-end">
-                                <ion-text>{{ playerInfo.grade }}급</ion-text>
-                            </ion-col>
-                        </ion-row>
-                    </ion-grid>
-                </ion-item>
-                <ion-item>
-                    <ion-label>일반전 승률</ion-label>
-                    <ion-note :color="gameNormalRatioColor">{{ `${gameNormalRatio}%` }}</ion-note>
-                </ion-item>
-                <ion-item>
-                    <ion-label>공식전 승률</ion-label>
-                    <ion-note :color="gameRatingRatioColor">{{ `${gameRatingRatio}%` }}</ion-note>
-                </ion-item>
-                <ion-item v-if="playerInfo.tierName">
-                    <ion-grid>
-                        <ion-row class="ion-text-center ion-align-items-center">
-                            <ion-col size="6">
-                                <ion-text color="primary">
-                                    <h1 class="ion-no-margin">{{ playerInfo.tierName }}</h1>
-                                </ion-text>
-                            </ion-col>
-                            <ion-col size="3">
-                                <div>현재점수</div>
-                                <div>{{ playerInfo.ratingPoint }}</div>
-                            </ion-col>
-                            <ion-col size="3">
-                                <div>최고점수</div>
-                                <div>{{ playerInfo.maxRatingPoint }}</div>
-                            </ion-col>
-                        </ion-row>
-                    </ion-grid>
-                </ion-item>
-            </ion-list>
+            <template v-if="playerInfo">
+                <ion-list lines="none">
+                    <ion-item>
+                        <ion-grid class="no-padding">
+                            <ion-row v-if="playerInfo.clanName">
+                                <ion-col>
+                                    <ion-text color="warning">
+                                        <small>{{ playerInfo.clanName }}</small>
+                                    </ion-text>
+                                </ion-col>
+                            </ion-row>
+                            <ion-row class="ion-align-items-center">
+                                <ion-col size="10">
+                                    <ion-text>
+                                        <h1 class="ion-no-margin">{{ playerInfo.nickname }}</h1>
+                                    </ion-text>
+                                </ion-col>
+                                <ion-col size="2" class="ion-text-end">
+                                    <ion-text>{{ playerInfo.grade }}급</ion-text>
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
+                    </ion-item>
+                    <ion-list-header>
+                        <ion-label>승률</ion-label>
+                    </ion-list-header>
+                    <ion-item>
+                        <ion-label>일반전</ion-label>
+                        <ion-note :color="gameNormalRatioColor">{{ `${gameNormalRatio}%` }}</ion-note>
+                    </ion-item>
+                    <ion-item>
+                        <ion-label>공식전</ion-label>
+                        <ion-note :color="gameRatingRatioColor">{{ `${gameRatingRatio}%` }}</ion-note>
+                    </ion-item>
+                    <ion-item v-if="playerInfo.tierName">
+                        <ion-grid>
+                            <ion-row class="ion-text-center ion-align-items-center">
+                                <ion-col size="6">
+                                    <ion-text color="primary">
+                                        <h1 class="ion-no-margin">{{ playerInfo.tierName }}</h1>
+                                    </ion-text>
+                                </ion-col>
+                                <ion-col size="3">
+                                    <div>현재점수</div>
+                                    <div>{{ playerInfo.ratingPoint }}</div>
+                                </ion-col>
+                                <ion-col size="3">
+                                    <div>최고점수</div>
+                                    <div>{{ playerInfo.maxRatingPoint }}</div>
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
+                    </ion-item>
+                    <ion-list-header>
+                        <ion-label>매칭기록</ion-label>
+                    </ion-list-header>
+                    <ion-item>
+                        <ion-segment v-model="gameTypeId">
+                            <ion-segment-button value="rating">공식전</ion-segment-button>
+                            <ion-segment-button value="normal">일반전</ion-segment-button>
+                        </ion-segment>
+                    </ion-item>
+                    <template v-for="(gameInfo, index) in playerInfo.matches.rows" :key="index">
+                        <ion-item button :router-link="`/matches/${gameInfo.matchId}`">
+                            <ion-note slot="start" :color="resultColor(gameInfo.playInfo.result)">
+                                {{ gameInfo.playInfo.result }}
+                            </ion-note>
+                            <ion-thumbnail slot="start">
+                                <img :src="`${NeopleApi.cyCharactersUrl}/${gameInfo.playInfo.characterId}`" />
+                                <img :src="NeopleApi.getPositionImage(gameInfo.position.name)" class="position-icon">
+                            </ion-thumbnail>
+                            <ion-label>
+                                <div>{{ gamePlayType(gameInfo.playInfo.partyUserCount) }}</div>
+                                <div>
+                                    KDA: {{ gameKDA(gameInfo.playInfo.killCount, gameInfo.playInfo.deathCount,
+                                    gameInfo.playInfo.assistCount) }}
+                                </div>
+                            </ion-label>
+                        </ion-item>
+                    </template>
+                </ion-list>
+            </template>
         </ion-content>
 
         <ion-menu content-id="main" menu-id="main-menu">
@@ -125,9 +157,13 @@ import {
     IonText,
     IonNote,
     IonFooter,
-    alertController
+    alertController,
+    IonListHeader,
+    IonSegment,
+    IonSegmentButton,
+    IonThumbnail
 } from '@ionic/vue';
-import { computed, defineComponent, ref } from 'vue';
+import { computed, defineComponent, ref, watch } from 'vue';
 import { searchSharp } from 'ionicons/icons';
 import NeopleApi from '@/utils/NeopleApi';
 import Common from '@/utils/Common';
@@ -153,12 +189,17 @@ export default defineComponent({
         IonCol,
         IonText,
         IonNote,
-        IonFooter
+        IonFooter,
+        IonListHeader,
+        IonSegment,
+        IonSegmentButton,
+        IonThumbnail
     },
     setup() {
         const player = ref('');
         let playerId = '';
-        let playerInfo = ref();
+        const playerInfo = ref();
+        const gameTypeId = ref();
 
         const playerSearch = async () => {
             const loading = await loadingController.create({
@@ -172,10 +213,14 @@ export default defineComponent({
 
                 if (Common.isNull(playerIdJson.rows)) {
                     playerId = '';
-                    playerInfo.value = ref();
+                    playerInfo.value = null;
                 } else {
                     playerId = playerIdJson.rows[0].playerId;
-                    playerInfo.value = ref(await NeopleApi.cyPlayerInfo({ playerId: playerId })).value;
+                    playerInfo.value = await NeopleApi.cyPlayerMatches(Common.preprocessing({
+                        playerId: playerId,
+                        gameTypeId: gameTypeId.value
+                    }));
+                    gameTypeId.value = playerInfo.value.matches.gameTypeId;
                     console.log(playerInfo.value);
                 }
 
@@ -203,13 +248,25 @@ export default defineComponent({
             }
         };
 
+        const resultColor = (color: string) => color === 'win' ? 'primary' : 'danger';
+
+        const gamePlayType = (userCnt: number) => userCnt > 0 ? `파티 ${userCnt}인` : '솔로';
+
+        const gameKDA = (killCount: number, deathCount: number, assistCount: number) => {
+            if (deathCount > 0) {
+                return Math.round((killCount + assistCount) / deathCount * 100) / 100;
+            } else {
+                return 'PERFECT';
+            }
+        };
+
         const gameNormalRatio = computed(() => {
             let ratio = 0;
 
             if (!Common.isNull(playerInfo) && !Common.isNull(playerInfo.value.records)) {
                 const game = (playerInfo.value.records as any[]).filter(game => game.gameTypeId === 'normal')[0];
                 if (game.winCount + game.loseCount > 0) {
-                    ratio = Math.round(game.winCount / (game.winCount + game.loseCount) * 100);
+                    ratio = Math.round(game.winCount / (game.winCount + game.loseCount) * 10000) / 100;
                 }
             }
 
@@ -237,7 +294,7 @@ export default defineComponent({
             if (!Common.isNull(playerInfo) && !Common.isNull(playerInfo.value.records)) {
                 const game = (playerInfo.value.records as any[]).filter(game => game.gameTypeId === 'rating')[0];
                 if (game.winCount + game.loseCount) {
-                    ratio = Math.round(game.winCount / (game.winCount + game.loseCount) * 100);
+                    ratio = Math.round(game.winCount / (game.winCount + game.loseCount) * 10000) / 100;
                 }
             }
 
@@ -259,6 +316,10 @@ export default defineComponent({
             return color;
         });
 
+        watch(gameTypeId, (newVal, oldVal) => {
+            if (!Common.isNull(oldVal)) playerSearch();
+        });
+
         onIonViewDidLeave(() => {
             menuController.close('main-menu');
         });
@@ -272,7 +333,12 @@ export default defineComponent({
             gameNormalRatio,
             gameNormalRatioColor,
             gameRatingRatio,
-            gameRatingRatioColor
+            gameRatingRatioColor,
+            gameTypeId,
+            NeopleApi,
+            resultColor,
+            gamePlayType,
+            gameKDA
         }
     }
 });
@@ -280,5 +346,19 @@ export default defineComponent({
 <style scoped>
 .no-padding ion-col {
     --ion-grid-column-padding: 0;
+}
+
+ion-thumbnail {
+    position: relative;
+}
+
+.position-icon {
+    --size: 36px;
+
+    position: absolute;
+    width: var(--size);
+    height: var(--size);
+    bottom: -10px;
+    right: -16px;
 }
 </style>

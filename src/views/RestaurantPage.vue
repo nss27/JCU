@@ -107,7 +107,7 @@ export default defineComponent({
         onMounted(async () => {
             const list = await GoogleApi.getSingleSheetData('맛집정보') as any[];
             const index = list.findIndex(item => item.no == route.params.no);
-            storeInfo.value = ref(list[index]).value;
+            storeInfo.value = list[index];
 
             if (!Common.isNull(storeInfo.value['store-address'])) {
                 const geocoder = new window.kakao.maps.services.Geocoder();

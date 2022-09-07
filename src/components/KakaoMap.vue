@@ -7,19 +7,19 @@ import { defineComponent, onMounted, watch, toRefs, ref } from 'vue'
 import Common from '@/utils/Common';
 
 export default defineComponent({
-    props: ['width', 'height', 'center', 'level', 'delay', 'markerOptions'],
+    props: ['width', 'height', 'center', 'level', 'markerOptions'],
     setup(props, { emit }) {
         const {
             width,
             height,
             center,
             level,
-            delay,
             markerOptions
         } = toRefs(props);
-        const div = ref({} as HTMLDivElement);
-        let map = null as any,
-            markers = [] as any[];
+        const div = ref();
+        const markers = ref<any[]>([]);
+
+        let map = null as any;
 
         const setWidth = (width: string) => {
             if (!Common.isNull(width) && !Common.isNull(div.value)) div.value.style.width = width;
@@ -52,7 +52,7 @@ export default defineComponent({
                             overlay: new window.kakao.maps.CustomOverlay(option)
                         };
 
-                        markers.push(markerInfo);
+                        markers.value.push(markerInfo);
 
                         window.kakao.maps.event.addListener(markerInfo.marker, 'click', () => emit('markerClick', markerInfo));
                     })
@@ -60,12 +60,12 @@ export default defineComponent({
         };
 
         const delMarkers = () => {
-            if (!Common.isNull(markers)) {
-                markers.forEach(({ marker, overlay }) => {
+            if (!Common.isNull(markers.value)) {
+                markers.value.forEach(({ marker, overlay }) => {
                     marker.setMap(null);
                     overlay.setMap(null);
                 });
-                markers = [];
+                markers.value = [];
             }
         };
 
@@ -76,21 +76,19 @@ export default defineComponent({
         watch(markerOptions, () => setMarkers(markerOptions.value));
 
         onMounted(() => {
-            setTimeout(() => {
-                setWidth(width.value);
-                setHeight(height.value);
+            setWidth(width.value);
+            setHeight(height.value);
 
-                const options = {
-                    center: new window.kakao.maps.LatLng(35.821490634185395, 127.12554435309835),
-                    level: 8
-                };
+            const options = {
+                center: new window.kakao.maps.LatLng(35.821490634185395, 127.12554435309835),
+                level: 8
+            };
 
-                map = new window.kakao.maps.Map(div.value, options);
+            map = new window.kakao.maps.Map(div.value, options);
 
-                setCenter(center.value);
-                setLevel(level.value);
-                setMarkers(markerOptions.value);
-            }, Common.isNull(delay.value) ? 0 : delay.value);
+            setCenter(center.value);
+            setLevel(level.value);
+            setMarkers(markerOptions.value);
         });
 
         return {

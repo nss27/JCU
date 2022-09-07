@@ -1,17 +1,6 @@
 type WordType = "match" | "full";
-
-interface CyPlayerId {
-  grade: number;
-  nickname: string;
-  playerId: string;
-}
-
-interface CyGameCount {
-  gameTypeId: string;
-  loseCount: number;
-  stopCount: number;
-  winCount: number;
-}
+type GameTypeId = "rating" | "normal";
+type PositionType = "원거리딜러" | "근거리딜러" | "탱커" | "서포터";
 
 interface CyPlayerIdReq {
   nickname: string;
@@ -19,18 +8,14 @@ interface CyPlayerIdReq {
   limit?: number;
 }
 
-interface CyPlayerIdRes {
-  rows: NeopleCyPlayerId[];
-}
-
 interface CyPlayerInfoReq {
   playerId: string;
 }
 
-interface CyPlayerInfoRes extends CyPlayerId {
-  clanName: string;
-  maxRatingPoint: number;
-  ratingPoint: number;
-  records: CyGameCount[];
-  tierName: string;
+interface CyPlayerMatchesReq extends CyPlayerInfoReq {
+  gameTypeId?: GameTypeId;
+  startDate?: string;
+  endDate?: string;
+  limit?: number;
+  next?: string;
 }

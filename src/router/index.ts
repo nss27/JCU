@@ -7,6 +7,7 @@ import CharactorLookalikePage from "@/views/CharactorLookalikePage.vue";
 import OpenSourceLicenseListPage from "@/views/OpenSourceLicenseListPage.vue";
 import OpenSourceLicensePage from "@/views/OpenSourceLicensePage.vue";
 import OpenApiListPage from "@/views/OpenApiListPage.vue";
+import CyPlayerMatchesPage from "@/views/CyPlayerMatchesPage.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -36,6 +37,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/openApiList",
     component: OpenApiListPage,
+  },
+  {
+    path: "/matches/:matchesId",
+    component: CyPlayerMatchesPage,
   },
 ];
 
