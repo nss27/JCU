@@ -74,6 +74,22 @@ http://ionicframework.com/docs/theming/ */
   --ion-color-light-contrast-rgb: 0, 0, 0;
   --ion-color-light-shade: #d7d8da;
   --ion-color-light-tint: #f5f6f9;
+
+  /* win */
+  --ion-color-win: #2954af;
+	--ion-color-win-rgb: 41,84,175;
+	--ion-color-win-contrast: #ffffff;
+	--ion-color-win-contrast-rgb: 255,255,255;
+	--ion-color-win-shade: #244a9a;
+	--ion-color-win-tint: #3e65b7;
+
+  /* lose */
+  --ion-color-lose: #a12727;
+	--ion-color-lose-rgb: 161,39,39;
+	--ion-color-lose-contrast: #ffffff;
+	--ion-color-lose-contrast-rgb: 255,255,255;
+	--ion-color-lose-shade: #8e2222;
+	--ion-color-lose-tint: #aa3d3d;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -145,6 +161,20 @@ http://ionicframework.com/docs/theming/ */
     --ion-color-light-contrast-rgb: 255,255,255;
     --ion-color-light-shade: #1e2023;
     --ion-color-light-tint: #383a3e;
+
+    --ion-color-lose: #2f5ab6;
+    --ion-color-lose-rgb: 47,90,182;
+    --ion-color-lose-contrast: #ffffff;
+    --ion-color-lose-contrast-rgb: 255,255,255;
+    --ion-color-lose-shade: #294fa0;
+    --ion-color-lose-tint: #446bbd;
+    
+    --ion-color-lose: #b33232;
+    --ion-color-lose-rgb: 179,50,50;
+    --ion-color-lose-contrast: #ffffff;
+    --ion-color-lose-contrast-rgb: 255,255,255;
+    --ion-color-lose-shade: #9e2c2c;
+    --ion-color-lose-tint: #bb4747;
   }
 
   /*
@@ -233,4 +263,22 @@ http://ionicframework.com/docs/theming/ */
 
     --ion-card-background: #1e1e1e;
   }
+}
+
+.ion-color-win {
+	--ion-color-base: var(--ion-color-win);
+	--ion-color-base-rgb: var(--ion-color-win-rgb);
+	--ion-color-contrast: var(--ion-color-win-contrast);
+	--ion-color-contrast-rgb: var(--ion-color-win-contrast-rgb);
+	--ion-color-shade: var(--ion-color-win-shade);
+	--ion-color-tint: var(--ion-color-win-tint);
+}
+
+.ion-color-lose {
+	--ion-color-base: var(--ion-color-lose);
+	--ion-color-base-rgb: var(--ion-color-lose-rgb);
+	--ion-color-contrast: var(--ion-color-lose-contrast);
+	--ion-color-contrast-rgb: var(--ion-color-lose-contrast-rgb);
+	--ion-color-shade: var(--ion-color-lose-shade);
+	--ion-color-tint: var(--ion-color-lose-tint);
 }

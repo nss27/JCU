@@ -1,96 +1,148 @@
 <template>
-    <ion-page>
-        <ion-header :translucent="true">
-            <ion-toolbar>
-                <ion-buttons>
-                    <ion-back-button></ion-back-button>
-                </ion-buttons>
-                <ion-title>맛집지도</ion-title>
-            </ion-toolbar>
-            <ion-toolbar>
-                <ion-searchbar v-model="sotreSearch" :debounce="250"></ion-searchbar>
-            </ion-toolbar>
-            <ion-toolbar>
-                <ion-chip v-for="(item, index) in storeTypes" :key="index" :outline="!(item === storeTypeSearch)"
-                    @click="() => storeTypeSearch = item">{{ item }}
-                </ion-chip>
-            </ion-toolbar>
-        </ion-header>
+  <ion-page>
+    <ion-header :translucent="true">
+      <ion-toolbar>
+        <ion-buttons>
+          <ion-back-button></ion-back-button>
+        </ion-buttons>
+        <ion-title>맛집지도</ion-title>
+      </ion-toolbar>
+      <ion-toolbar>
+        <ion-searchbar v-model="sotreSearch" :debounce="250"></ion-searchbar>
+      </ion-toolbar>
+      <ion-toolbar>
+        <ion-chip
+          v-for="(item, index) in storeTypes"
+          :key="index"
+          :outline="!(item === storeTypeSearch)"
+          @click="() => (storeTypeSearch = item)"
+          >{{ item }}
+        </ion-chip>
+      </ion-toolbar>
+    </ion-header>
 
-        <ion-content :fullscreen="true">
-            <template v-for="store in storeList" :key="store">
-                <StoreCard v-if="store.show" :storeInfo="store" :router-link="`/restaurant/${store.no}`">
-                </StoreCard>
-            </template>
-        </ion-content>
-    </ion-page>
+    <ion-content :fullscreen="true">
+      <template v-if="Common.isNull(showStoreList)">
+        <NoData></NoData>
+      </template>
+      <template v-else>
+        <template v-for="store in showStoreList" :key="store">
+          <StoreCard
+            :storeInfo="store"
+            :router-link="`/restaurant/${store.no}`"
+          >
+          </StoreCard>
+        </template>
+      </template>
+    </ion-content>
+  </ion-page>
 </template>
 
 <script lang="ts">
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonSearchbar, IonButtons, IonBackButton, IonChip } from '@ionic/vue';
-import { defineComponent, onMounted, ref, watch } from 'vue';
-import StoreCard from '@/components/StoreCard.vue';
-import GoogleApi from '@/utils/GoogleApi';
+import {
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+  IonSearchbar,
+  IonButtons,
+  IonBackButton,
+  IonChip,
+  loadingController,
+  alertController,
+} from "@ionic/vue";
+import { computed, defineComponent, onMounted, ref, watch } from "vue";
+import StoreCard from "@/components/StoreCard.vue";
+import GoogleApi from "@/utils/GoogleApi";
+import Common from "@/utils/Common";
+import NoData from "@/components/NoData.vue";
 
 export default defineComponent({
-    components: {
-        IonContent,
-        IonHeader,
-        IonPage,
-        IonTitle,
-        IonToolbar,
-        IonSearchbar,
-        IonButtons,
-        IonBackButton,
-        StoreCard,
-        IonChip
-    },
-    setup() {
-        const storeList = ref([] as any[]);
-        const storeTypes = ['전체', '음식점', '카페'];
-        const storeTypeSearch = ref('전체');
-        const sotreSearch = ref('');
+  components: {
+    IonContent,
+    IonHeader,
+    IonPage,
+    IonTitle,
+    IonToolbar,
+    IonSearchbar,
+    IonButtons,
+    IonBackButton,
+    StoreCard,
+    IonChip,
+    NoData,
+  },
+  setup() {
+    const storeList = ref([] as any[]);
+    const storeTypes = ["전체", "음식점", "카페"];
+    const storeTypeSearch = ref("전체");
+    const sotreSearch = ref("");
 
-        const searchWordChange = () => {
-            storeList.value.map(store => {
-                const storeName = store['store-name'] as string;
-                const storeType = store['store-type'] as string;
+    const searchWordChange = () => {
+      storeList.value.map((store) => {
+        const storeName = store["store-name"] as string;
+        const storeType = store["store-type"] as string;
 
-                switch (storeTypeSearch.value) {
-                    case '전체':
-                        store.show = storeName.includes(sotreSearch.value);
-                        break;
+        switch (storeTypeSearch.value) {
+          case "전체":
+            store.show = storeName.includes(sotreSearch.value);
+            break;
 
-                    default:
-                        store.show = storeName.includes(sotreSearch.value) && storeType.includes(storeTypeSearch.value);
-                        break;
-                }
+          default:
+            store.show =
+              storeName.includes(sotreSearch.value) &&
+              storeType.includes(storeTypeSearch.value);
+            break;
+        }
 
-                return store;
-            })
-        };
+        return store;
+      });
+    };
 
-        watch(sotreSearch, searchWordChange);
-        watch(storeTypeSearch, searchWordChange);
+    const showStoreList = computed(() =>
+      storeList.value.filter((store) => store.show)
+    );
 
-        onMounted(async () => {
-            storeList.value = await GoogleApi.getSingleSheetData('맛집정보');
-            storeList.value.forEach(store => store.show = true);
+    watch(sotreSearch, searchWordChange);
+    watch(storeTypeSearch, searchWordChange);
+
+    onMounted(async () => {
+      const loading = await loadingController.create({
+        message: "데이터 조회중",
+        mode: "ios",
+      });
+      loading.present();
+      try {
+        storeList.value = await GoogleApi.getSingleSheetData("맛집정보");
+        storeList.value.forEach((store) => (store.show = true));
+      } catch (error) {
+        const alert = await alertController.create({
+          header: "오류 발생",
+          subHeader: `${error}`,
+          buttons: ["OK"],
+          mode: "ios",
         });
 
-        return {
-            storeList,
-            storeTypes,
-            storeTypeSearch,
-            sotreSearch
-        }
-    }
+        await alert.present();
+      } finally {
+        loading.dismiss();
+      }
+    });
+
+    return {
+      storeTypes,
+      storeTypeSearch,
+      sotreSearch,
+      Common,
+      showStoreList,
+    };
+  },
 });
 </script>
 
 <style scoped>
 ion-searchbar {
-    padding-top: 0;
-    padding-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 </style>
