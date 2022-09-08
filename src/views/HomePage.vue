@@ -46,11 +46,11 @@
                     </ion-list-header>
                     <ion-item>
                         <ion-label>일반전</ion-label>
-                        <ion-note :color="gameNormalRatioColor">{{ `${gameNormalRatio}%` }}</ion-note>
+                        <ion-note slot="end" :color="gameNormalRatioColor">{{ `${gameNormalRatio}%` }}</ion-note>
                     </ion-item>
                     <ion-item>
                         <ion-label>공식전</ion-label>
-                        <ion-note :color="gameRatingRatioColor">{{ `${gameRatingRatio}%` }}</ion-note>
+                        <ion-note slot="end" :color="gameRatingRatioColor">{{ `${gameRatingRatio}%` }}</ion-note>
                     </ion-item>
                     <ion-item v-if="playerInfo.tierName">
                         <ion-grid>
@@ -72,7 +72,13 @@
                         </ion-grid>
                     </ion-item>
                     <ion-list-header>
-                        <ion-label>매칭기록</ion-label>
+                        <ion-label>
+                            <h1><strong>매칭기록</strong></h1>
+                            <p>
+                                ※ 매칭 기록 갱신 주기
+                                <br>- 공식 홈페이지 전적 검색과 동일하게 1시간마다 갱신됩니다.
+                            </p>
+                        </ion-label>
                     </ion-list-header>
                     <ion-item>
                         <ion-segment v-model="gameTypeId">
@@ -90,15 +96,21 @@
                                 <img :src="NeopleApi.getPositionImage(gameInfo.position.name)" class="position-icon">
                             </ion-thumbnail>
                             <ion-label>
-                                <div>{{ gamePlayType(gameInfo.playInfo.partyUserCount) }}</div>
                                 <div>
-                                    KDA: {{ gameKDA(gameInfo.playInfo.killCount, gameInfo.playInfo.deathCount,
+                                    [{{ gamePlayType(gameInfo.playInfo.partyUserCount) }}] KDA: {{
+                                    gameKDA(gameInfo.playInfo.killCount, gameInfo.playInfo.deathCount,
                                     gameInfo.playInfo.assistCount) }}
+                                </div>
+                                <div>
+                                    <ion-text color="medium">{{ gameInfo.date }}</ion-text>
                                 </div>
                             </ion-label>
                         </ion-item>
                     </template>
                 </ion-list>
+                <ion-button v-if="playerInfo.matches.next" expand="block" @click="addMatches(playerInfo.matches.next)">
+                    더보기
+                </ion-button>
             </template>
         </ion-content>
 
@@ -197,7 +209,7 @@ export default defineComponent({
     },
     setup() {
         const player = ref('');
-        let playerId = '';
+        const playerId = ref('');
         const playerInfo = ref();
         const gameTypeId = ref();
 
@@ -212,24 +224,21 @@ export default defineComponent({
                 const playerIdJson = await NeopleApi.cyPlayerId({ nickname: encodeURI(player.value) });
 
                 if (Common.isNull(playerIdJson.rows)) {
-                    playerId = '';
+                    playerId.value = '';
                     playerInfo.value = null;
                 } else {
-                    playerId = playerIdJson.rows[0].playerId;
+                    playerId.value = playerIdJson.rows[0].playerId;
                     playerInfo.value = await NeopleApi.cyPlayerMatches(Common.preprocessing({
-                        playerId: playerId,
+                        playerId: playerId.value,
                         gameTypeId: gameTypeId.value
                     }));
                     gameTypeId.value = playerInfo.value.matches.gameTypeId;
                     console.log(playerInfo.value);
                 }
-
-                loading.dismiss();
             } catch (error) {
                 const alert = await alertController.create({
                     header: '오류 발생',
-                    subHeader: '네트워크를 확인해주세요',
-                    // message: '데이터를 처리하는 과정에서 오류가 발생하였습니다\n네트워크를 확인해주세요',
+                    subHeader: `${error}`,
                     buttons: ['OK'],
                     mode: 'ios'
                 });
@@ -257,6 +266,34 @@ export default defineComponent({
                 return Math.round((killCount + assistCount) / deathCount * 100) / 100;
             } else {
                 return 'PERFECT';
+            }
+        };
+
+        const addMatches = async (next: string) => {
+            const loading = await loadingController.create({
+                message: '데이터 조회중',
+                mode: 'ios'
+            });
+            loading.present();
+
+            try {
+                const json = await NeopleApi.cyPlayerMatches({
+                    playerId: playerId.value,
+                    next: next
+                });
+                playerInfo.value.matches.rows.push(...json.matches.rows);
+                playerInfo.value.matches.next = json.matches.next;
+            } catch (error) {
+                const alert = await alertController.create({
+                    header: '오류 발생',
+                    subHeader: `${error}`,
+                    buttons: ['OK'],
+                    mode: 'ios'
+                });
+
+                await alert.present();
+            } finally {
+                loading.dismiss();
             }
         };
 
@@ -338,7 +375,8 @@ export default defineComponent({
             NeopleApi,
             resultColor,
             gamePlayType,
-            gameKDA
+            gameKDA,
+            addMatches
         }
     }
 });

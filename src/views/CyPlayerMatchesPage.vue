@@ -5,18 +5,18 @@
                 <ion-buttons>
                     <ion-back-button></ion-back-button>
                 </ion-buttons>
-                <ion-title>매칭기록</ion-title>
+                <ion-title>경기결과</ion-title>
             </ion-toolbar>
         </ion-header>
 
         <ion-content :fullscreen="true">
-            {{ text }}
+            {{ gameInfo }}
         </ion-content>
     </ion-page>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 import {
     IonPage,
     IonHeader,
@@ -26,6 +26,8 @@ import {
     IonTitle,
     IonContent
 } from '@ionic/vue';
+import NeopleApi from '@/utils/NeopleApi';
+import { useRoute } from 'vue-router';
 
 export default defineComponent({
     components: {
@@ -38,10 +40,21 @@ export default defineComponent({
         IonContent
     },
     setup() {
-        let text = '서비스 준비중...';
+        const gameInfo = ref();
+
+        const route = useRoute();
+
+        const getMatchesInfo = async () => {
+            gameInfo.value = await NeopleApi.cyPlayerMatchesInfo({
+                matchId: route.params.matchId as string
+            });
+            console.log(gameInfo.value);
+        };
+
+        getMatchesInfo();
 
         return {
-            text
+            gameInfo
         }
     },
 })

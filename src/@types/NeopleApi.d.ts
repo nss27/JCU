@@ -19,3 +19,6 @@ interface CyPlayerMatchesReq extends CyPlayerInfoReq {
   limit?: number;
   next?: string;
 }
+interface CyPlayerMatchesInfoReq {
+  matchId: string;
+}

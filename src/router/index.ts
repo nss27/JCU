@@ -39,7 +39,7 @@ const routes: Array<RouteRecordRaw> = [
     component: OpenApiListPage,
   },
   {
-    path: "/matches/:matchesId",
+    path: "/matches/:matchId",
     component: CyPlayerMatchesPage,
   },
 ];

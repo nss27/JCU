@@ -82,10 +82,27 @@ export default class NeopleApi {
 
   /**
    * 포지션별 이미지 조회
-   * @param position 
-   * @returns 
+   * @param position
+   * @returns
    */
   static getPositionImage(position: PositionType) {
     return positionImages[position];
+  }
+
+  static async cyPlayerMatchesInfo(data: CyPlayerMatchesInfoReq) {
+    const paramsObj = {
+      apikey: key,
+      ...data,
+    };
+
+    const params = Object.entries(paramsObj).map(([key, val]) => {
+      if (key !== "matchId") return `${key}=${val}`;
+    });
+
+    const json = await fetch(
+      `${proxyServer}/cyphers/cy/matches/${data.matchId}?${params.join("&")}`
+    ).then((res) => res.json());
+
+    return json;
   }
 }
