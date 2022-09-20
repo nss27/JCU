@@ -22,3 +22,11 @@ interface CyPlayerMatchesReq extends CyPlayerInfoReq {
 interface CyPlayerMatchesInfoReq {
   matchId: string;
 }
+
+interface CyItemsInfoReq {
+  itemId: string;
+}
+
+interface CyPositionInfoReq {
+  attributeId: string;
+}

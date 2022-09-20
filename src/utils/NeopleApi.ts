@@ -105,4 +105,38 @@ export default class NeopleApi {
 
     return json;
   }
+
+  static async cyItemsInfo(data: CyItemsInfoReq) {
+    const paramsObj = {
+      apikey: key,
+      ...data,
+    };
+
+    const params = Object.entries(paramsObj).map(([key, val]) => {
+      if (key !== "itemId") return `${key}=${val}`;
+    });
+
+    const json = await fetch(
+      `${proxyServer}/cyphers/cy/battleitems/${data.itemId}?${params.join("&")}`
+    ).then((res) => res.json());
+
+    return json;
+  }
+
+  static async cyPositionInfo(data: CyPositionInfoReq) {
+    const paramsObj = {
+      apikey: key,
+      ...data,
+    };
+
+    const params = Object.entries(paramsObj).map(([key, val]) => {
+      if (key !== "itemId") return `${key}=${val}`;
+    });
+
+    const json = await fetch(
+      `${proxyServer}/cyphers/cy/position-attributes/${data.attributeId}?${params.join("&")}`
+    ).then((res) => res.json());
+
+    return json;
+  }
 }
