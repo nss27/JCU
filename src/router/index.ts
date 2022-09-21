@@ -8,6 +8,8 @@ import OpenSourceLicenseListPage from "@/views/OpenSourceLicenseListPage.vue";
 import OpenSourceLicensePage from "@/views/OpenSourceLicensePage.vue";
 import OpenApiListPage from "@/views/OpenApiListPage.vue";
 import CyPlayerMatchesPage from "@/views/CyPlayerMatchesPage.vue";
+import CyItemInfoPage from "@/views/CyItemInfoPage.vue";
+import CyPositionInfoPage from "@/views/CyPositionInfoPage.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -41,6 +43,14 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/matches/:matchId",
     component: CyPlayerMatchesPage,
+  },
+  {
+    path: "/itemInfo/:itemId",
+    component: CyItemInfoPage,
+  },
+  {
+    path: "/positionInfo/:attributeId",
+    component: CyPositionInfoPage,
   },
 ];
 

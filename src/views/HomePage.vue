@@ -8,11 +8,7 @@
         <ion-title>전사연</ion-title>
       </ion-toolbar>
       <ion-toolbar>
-        <ion-searchbar
-          placeholder="닉네임을 입력하세요"
-          v-model="player"
-          @keypress="enter($event)"
-        ></ion-searchbar>
+        <ion-searchbar placeholder="닉네임을 입력하세요" v-model="player" @keypress="enter($event)"></ion-searchbar>
         <ion-buttons slot="end">
           <ion-button fill="clear" @click="playerSearch()">
             <ion-icon :icon="searchSharp" slot="icon-only"></ion-icon>
@@ -51,13 +47,13 @@
           <ion-item>
             <ion-label>일반전</ion-label>
             <ion-note slot="end" :color="gameNormalRatioColor">{{
-              `${gameNormalRatio}%`
+            `${gameNormalRatio}%`
             }}</ion-note>
           </ion-item>
           <ion-item>
             <ion-label>공식전</ion-label>
             <ion-note slot="end" :color="gameRatingRatioColor">{{
-              `${gameRatingRatio}%`
+            `${gameRatingRatio}%`
             }}</ion-note>
           </ion-item>
           <ion-item v-if="playerInfo.tierName">
@@ -103,33 +99,24 @@
             </ion-item>
           </template>
           <template v-else>
-            <ion-item
-              v-for="(gameInfo, index) in playerInfo.matches.rows"
-              :key="index"
-              button
-              :router-link="`/matches/${gameInfo.matchId}`"
-            >
-              <ion-note slot="start" :color="gameInfo.playInfo.result">
+            <ion-item v-for="(gameInfo, index) in playerInfo.matches.rows" :key="index" button
+              :router-link="`/matches/${gameInfo.matchId}`">
+              <ion-note slot="start" :color="getResultColor(gameInfo.playInfo.result)">
                 {{ gameInfo.playInfo.result }}
               </ion-note>
               <ion-thumbnail slot="start">
-                <img
-                  :src="`${NeopleApi.cyCharactersUrl}/${gameInfo.playInfo.characterId}`"
-                />
-                <img
-                  :src="NeopleApi.getPositionImage(gameInfo.position.name)"
-                  class="position-icon"
-                />
+                <img :src="`${NeopleApi.cyCharactersUrl}/${gameInfo.playInfo.characterId}`" />
+                <img :src="NeopleApi.getPositionImage(gameInfo.position.name)" class="position-icon" />
               </ion-thumbnail>
               <ion-label>
                 <div>
                   [{{ gamePlayType(gameInfo.playInfo.partyUserCount) }}] KDA:
                   {{
-                    gameKDA(
-                      gameInfo.playInfo.killCount,
-                      gameInfo.playInfo.deathCount,
-                      gameInfo.playInfo.assistCount
-                    )
+                  gameKDA(
+                  gameInfo.playInfo.killCount,
+                  gameInfo.playInfo.deathCount,
+                  gameInfo.playInfo.assistCount
+                  )
                   }}
                 </div>
                 <div>
@@ -139,11 +126,7 @@
             </ion-item>
           </template>
         </ion-list>
-        <ion-button
-          v-if="playerInfo.matches.next"
-          expand="block"
-          @click="addMatches(playerInfo.matches.next)"
-        >
+        <ion-button v-if="playerInfo.matches.next" expand="block" @click="addMatches(playerInfo.matches.next)">
           더보기
         </ion-button>
       </template>
@@ -339,6 +322,8 @@ export default defineComponent({
       }
     };
 
+    const getResultColor = (result: 'win' | 'lose') => result === 'win' ? 'primary' : 'danger';
+
     const gameNormalRatio = computed(() => {
       let ratio = 0;
       let game = null;
@@ -437,6 +422,7 @@ export default defineComponent({
       gameKDA,
       addMatches,
       Common,
+      getResultColor
     };
   },
 });

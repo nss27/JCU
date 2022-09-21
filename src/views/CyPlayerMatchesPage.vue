@@ -28,10 +28,10 @@
             </ion-label>
           </ion-item>
 
-          <ion-item :color="player.gameResult" v-if="player.playInfo.partyUserCount > 0">
+          <ion-item v-if="player.playInfo.partyUserCount > 0" :color="player.gameResult">
             <div>
               <ion-chip v-for="(partyInfo, index) in getParty({...player.playInfo, playerId: player.playerId})"
-                :key="index" color="white">
+                :key="index" color="dark">
                 <ion-avatar>
                   <img :src="`${NeopleApi.cyCharactersUrl}/${partyInfo.playInfo.characterId}`">
                 </ion-avatar>
@@ -40,32 +40,36 @@
             </div>
           </ion-item>
 
-          <ion-item :color="player.gameResult">
+          <ion-item lines="inset">
             <ion-grid>
               <ion-row>
-                <ion-col size="2">
+                <ion-col>
                   K: {{ player.playInfo.killCount }}
                 </ion-col>
-                <ion-col size="2">
+                <ion-col>
                   D: {{ player.playInfo.deathCount }}
                 </ion-col>
-                <ion-col size="2">
+                <ion-col>
                   A: {{ player.playInfo.assistCount }}
                 </ion-col>
-                <ion-col size="6">
+                <ion-col size="5">
                   KDA: {{ gameKDA(player.playInfo.killCount, player.playInfo.deathCount, player.playInfo.assistCount) }}
                 </ion-col>
               </ion-row>
+            </ion-grid>
+          </ion-item>
 
+          <ion-item lines="inset">
+            <ion-grid>
               <ion-row>
                 <ion-col>
-                  공격량
+                  <ion-text color="medium">공격량</ion-text>
                 </ion-col>
                 <ion-col>
                   {{ player.playInfo.attackPoint }}
                 </ion-col>
                 <ion-col>
-                  피해량
+                  <ion-text color="medium">피해량</ion-text>
                 </ion-col>
                 <ion-col>
                   {{ player.playInfo.damagePoint }}
@@ -74,13 +78,13 @@
 
               <ion-row>
                 <ion-col>
-                  전투참여
+                  <ion-text color="medium">전투참여</ion-text>
                 </ion-col>
                 <ion-col>
                   {{ player.playInfo.battlePoint }}
                 </ion-col>
                 <ion-col>
-                  시야확보
+                  <ion-text color="medium">시야확보</ion-text>
                 </ion-col>
                 <ion-col>
                   {{ player.playInfo.sightPoint }}
@@ -89,13 +93,13 @@
 
               <ion-row>
                 <ion-col>
-                  힐량
+                  <ion-text color="medium">힐량</ion-text>
                 </ion-col>
                 <ion-col>
                   {{ player.playInfo.healAmount }}
                 </ion-col>
                 <ion-col>
-                  타워공격
+                  <ion-text color="medium">타워공격</ion-text>
                 </ion-col>
                 <ion-col>
                   {{ player.playInfo.towerAttackPoint }}
@@ -104,7 +108,7 @@
 
               <ion-row>
                 <ion-col size="3">
-                  획득코인
+                  <ion-text color="medium">획득코인</ion-text>
                 </ion-col>
                 <ion-col>
                   {{ player.playInfo.getCoin }}
@@ -113,21 +117,26 @@
             </ion-grid>
           </ion-item>
 
-          <ion-item :color="player.gameResult">
-            <div class="position-box">
-              <img v-for="(position, index) in player.position.attribute" :key="index"
-                :src="`${NeopleApi.cyPositionAttributesUrl}/${position.id}`" :class="`position-${position.level}`"
-                @click="getPositionInfo(position.id)">
-            </div>
+          <ion-item lines="inset">
+            <ion-label>
+              <ion-text color="medium">특성</ion-text>
+              <div class="position-box">
+                <img v-for="(position, index) in player.position.attribute" :key="index"
+                  :src="`${NeopleApi.cyPositionAttributesUrl}/${position.id}`" @click="getPositionInfo(position.id)">
+              </div>
+            </ion-label>
           </ion-item>
 
-          <ion-item :color="player.gameResult" lines="full">
-            <div class="item-box">
-              <div v-for="(item, index) in player.items" :key="index"
-                :class="[`item-${item.slotCode}`, getSeason(item.itemName)]" @click="getItemInfo(item.itemId)">
-                <img :src="`${NeopleApi.cyitemsUrl}/${item.itemId}`">
+          <ion-item>
+            <ion-label>
+              <ion-text color="medium">아이템</ion-text>
+              <div class="item-box">
+                <div v-for="(item, index) in player.items" :key="index"
+                  :class="[`item-${item.slotCode}`, getSeason(item.itemName)]" @click="getItemInfo(item.itemId)">
+                  <img :src="`${NeopleApi.cyitemsUrl}/${item.itemId}`">
+                </div>
               </div>
-            </div>
+            </ion-label>
           </ion-item>
         </template>
       </ion-list>
@@ -159,14 +168,12 @@ import {
   IonRow,
   IonCol,
   IonThumbnail,
-  modalController
+  IonText
 } from "@ionic/vue";
 import NeopleApi from "@/utils/NeopleApi";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import Common from "@/utils/Common";
 import NoData from "@/components/NoData.vue";
-import itemInfoVue from "@/components/itemInfo.vue";
-import positionInfoVue from "@/components/positionInfo.vue";
 
 export default defineComponent({
   components: {
@@ -186,12 +193,13 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
-    IonThumbnail
+    IonThumbnail,
+    IonText
   },
   setup() {
-    const gameInfo = ref();
-
     const route = useRoute();
+    const router = useRouter();
+    const gameInfo = ref();
 
     const randomText = (random: boolean) => (random ? "랜덤" : "선택");
 
@@ -215,36 +223,9 @@ export default defineComponent({
     });
 
     const getItemInfo = async (itemId: string) => {
-      const loading = await loadingController.create({
-        message: "데이터 조회중",
-        mode: "ios",
+      router.push({
+        path: `/itemInfo/${itemId}`
       });
-
-      loading.present();
-
-      try {
-        const modal = await modalController.create({
-          component: itemInfoVue,
-          componentProps: {
-            itemId: itemId
-          },
-          mode: 'ios',
-          cssClass: ['popup']
-        });
-
-        await modal.present();
-      } catch (error) {
-        const alert = await alertController.create({
-          header: "오류 발생",
-          subHeader: `${error}`,
-          buttons: ["OK"],
-          mode: "ios",
-        });
-
-        await alert.present();
-      } finally {
-        loading.dismiss();
-      }
     }
 
     const getParty = (data: { partyUserCount: number, partyId: string, playerId: string }) => {
@@ -278,37 +259,10 @@ export default defineComponent({
       }
     };
 
-    const getPositionInfo = async (attributeId: string) => {
-      const loading = await loadingController.create({
-        message: "데이터 조회중",
-        mode: "ios",
+    const getPositionInfo = (attributeId: string) => {
+      router.push({
+        path: `/positionInfo/${attributeId}`
       });
-
-      loading.present();
-
-      try {
-        const modal = await modalController.create({
-          component: positionInfoVue,
-          componentProps: {
-            attributeId: attributeId
-          },
-          mode: 'ios',
-          cssClass: ['popup']
-        });
-
-        await modal.present();
-      } catch (error) {
-        const alert = await alertController.create({
-          header: "오류 발생",
-          subHeader: `${error}`,
-          buttons: ["OK"],
-          mode: "ios",
-        });
-
-        await alert.present();
-      } finally {
-        loading.dismiss();
-      }
     }
 
     onMounted(async () => {
@@ -369,7 +323,7 @@ ion-thumbnail {
 
 .item-box,
 .position-box {
-  padding: 5px;
+  margin-top: 10px;
 }
 
 .item-box {
@@ -448,20 +402,7 @@ ion-thumbnail {
 }
 
 .position-box {
-  display: grid;
-  grid-template-areas: '1 2 3';
-}
-
-.position-box .position-1 {
-  grid-area: '1';
-}
-
-.position-box .position-2 {
-  grid-area: '2';
-}
-
-.position-box .position-3 {
-  grid-area: '3';
+  display: flex;
 }
 
 .season-E::before {
@@ -477,9 +418,6 @@ ion-thumbnail {
   position: absolute;
   padding: 0 5px;
   background-color: #000000;
-}
-
-.popup {
-  height: 50%;
+  color: #ffffff;
 }
 </style>

@@ -1,37 +1,40 @@
 <template>
-    <ion-header>
-        <ion-toolbar>
-            <ion-title>아이템정보</ion-title>
-            <ion-buttons slot="end">
-                <ion-button @click="dismiss()">close</ion-button>
-            </ion-buttons>
-        </ion-toolbar>
-    </ion-header>
+    <ion-page>
+        <ion-header>
+            <ion-toolbar>
+                <ion-buttons slot="start">
+                    <ion-back-button></ion-back-button>
+                </ion-buttons>
+                <ion-title>아이템정보</ion-title>
+            </ion-toolbar>
+        </ion-header>
 
-    <ion-content>
-        <ion-list v-if="itemInfo" lines="none">
-            <ion-item>
-                <ion-thumbnail slot="start">
-                    <img :src="`${NeopleApi.cyitemsUrl}/${itemInfo.itemId}`">
-                </ion-thumbnail>
-                <ion-label>
-                    <h1 class="ion-no-margin">{{itemInfo.itemName}}</h1>
-                    <p class="ion-no-margin">{{itemInfo.slotName}}</p>
-                </ion-label>
-            </ion-item>
-            <ion-item>
-                <ion-label>
-                    <div style="white-space: pre-wrap;">{{explain}}</div>
-                </ion-label>
-            </ion-item>
-        </ion-list>
-        <ion-button expand="block" @click="detailView()">{{btnName}}</ion-button>
-    </ion-content>
+        <ion-content>
+            <ion-list v-if="itemInfo" lines="none">
+                <ion-item>
+                    <ion-thumbnail slot="start">
+                        <img :src="`${NeopleApi.cyitemsUrl}/${itemInfo.itemId}`">
+                    </ion-thumbnail>
+                    <ion-label>
+                        <h1 class="ion-no-margin">{{itemInfo.itemName}}</h1>
+                        <p class="ion-no-margin">{{itemInfo.slotName}}</p>
+                    </ion-label>
+                </ion-item>
+                <ion-item>
+                    <ion-label>
+                        <div style="white-space: pre-wrap;">{{explain}}</div>
+                    </ion-label>
+                </ion-item>
+            </ion-list>
+            <ion-button expand="block" @click="detailView()">{{btnName}}</ion-button>
+        </ion-content>
+    </ion-page>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref, toRefs } from 'vue'
+import { computed, defineComponent, onMounted, ref } from 'vue'
 import {
+    IonPage,
     IonHeader,
     IonToolbar,
     IonButtons,
@@ -43,14 +46,15 @@ import {
     alertController,
     IonLabel,
     IonThumbnail,
-    modalController,
-    IonTitle
+    IonTitle,
+    IonBackButton
 } from '@ionic/vue';
 import NeopleApi from '@/utils/NeopleApi';
+import { useRoute } from 'vue-router';
 
 export default defineComponent({
-    props: ['itemId'],
     components: {
+        IonPage,
         IonHeader,
         IonToolbar,
         IonButtons,
@@ -60,16 +64,14 @@ export default defineComponent({
         IonItem,
         IonLabel,
         IonThumbnail,
-        IonTitle
+        IonTitle,
+        IonBackButton
     },
-    setup(props) {
-        const { itemId } = toRefs(props);
+    setup() {
+        const route = useRoute();
+        const itemId = route.params.itemId as string;
         const itemInfo = ref();
         const detail = ref(false);
-
-        const dismiss = async () => {
-            await modalController.dismiss();
-        };
 
         const explain = computed(() => {
             if (detail.value) {
@@ -94,7 +96,7 @@ export default defineComponent({
             loading.present();
 
             try {
-                itemInfo.value = await NeopleApi.cyItemsInfo({ itemId: itemId.value });
+                itemInfo.value = await NeopleApi.cyItemsInfo({ itemId: itemId });
             } catch (error) {
                 const alert = await alertController.create({
                     header: "오류 발생",
@@ -112,7 +114,6 @@ export default defineComponent({
         return {
             itemInfo,
             NeopleApi,
-            dismiss,
             detailView,
             explain,
             btnName
