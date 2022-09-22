@@ -93,15 +93,15 @@
               <ion-segment-button value="normal">일반전</ion-segment-button>
             </ion-segment>
           </ion-item>
-          <template v-if="Common.isNull(playerInfo.matches.rows)">
+          <template v-if="Common.isNull(matches)">
             <ion-item>
               <NoData text="매칭기록이 존재하지 않습니다"></NoData>
             </ion-item>
           </template>
           <template v-else>
-            <ion-item v-for="(gameInfo, index) in playerInfo.matches.rows" :key="index" button
+            <ion-item v-for="(gameInfo, index) in matches" :key="index" button
               :router-link="`/matches/${gameInfo.matchId}`">
-              <ion-note slot="start" :color="getResultColor(gameInfo.playInfo.result)">
+              <ion-note slot="start" :color="gameInfo.playInfo.resultColor">
                 {{ gameInfo.playInfo.result }}
               </ion-note>
               <ion-thumbnail slot="start">
@@ -110,14 +110,7 @@
               </ion-thumbnail>
               <ion-label>
                 <div>
-                  [{{ gamePlayType(gameInfo.playInfo.partyUserCount) }}] KDA:
-                  {{
-                  gameKDA(
-                  gameInfo.playInfo.killCount,
-                  gameInfo.playInfo.deathCount,
-                  gameInfo.playInfo.assistCount
-                  )
-                  }}
+                  [{{ gameInfo.playInfo.partyTypeName }}] KDA: {{ gameInfo.playInfo.kda }}
                 </div>
                 <div>
                   <ion-text color="medium">{{ gameInfo.date }}</ion-text>
@@ -126,7 +119,7 @@
             </ion-item>
           </template>
         </ion-list>
-        <ion-button v-if="playerInfo.matches.next" expand="block" @click="addMatches(playerInfo.matches.next)">
+        <ion-button v-if="next" expand="block" @click="addMatches(next)">
           더보기
         </ion-button>
       </template>
@@ -230,7 +223,9 @@ export default defineComponent({
     const player = ref("");
     const playerId = ref("");
     const playerInfo = ref();
-    const gameTypeId = ref();
+    const gameTypeId = ref('');
+    const next = ref('');
+    const matches = ref();
 
     const playerSearch = async () => {
       const loading = await loadingController.create({
@@ -256,6 +251,8 @@ export default defineComponent({
             })
           );
           gameTypeId.value = playerInfo.value.matches.gameTypeId;
+          next.value = playerInfo.value.matches.next;
+          matches.value = playerInfo.value.matches.rows;
         }
       } catch (error) {
         const alert = await alertController.create({
@@ -279,22 +276,15 @@ export default defineComponent({
       }
     };
 
-    const gamePlayType = (userCnt: number) =>
-      userCnt > 0 ? `파티 ${userCnt}인` : "솔로";
-
-    const gameKDA = (
-      killCount: number,
-      deathCount: number,
-      assistCount: number
-    ) => {
-      if (deathCount > 0) {
-        return Math.round(((killCount + assistCount) / deathCount) * 100) / 100;
+    const getKDA = (data: { playInfo: { killCount: number, deathCount: number, assistCount: number } }) => {
+      if (data.playInfo.deathCount > 0) {
+        return Math.round(((data.playInfo.killCount + data.playInfo.assistCount) / data.playInfo.deathCount) * 100) / 100;
       } else {
         return "PERFECT";
       }
     };
 
-    const addMatches = async (next: string) => {
+    const addMatches = async (data: string) => {
       const loading = await loadingController.create({
         message: "데이터 조회중",
         mode: "ios",
@@ -304,10 +294,11 @@ export default defineComponent({
       try {
         const json = await NeopleApi.cyPlayerMatches({
           playerId: playerId.value,
-          next: next,
+          next: data,
         });
-        playerInfo.value.matches.rows.push(...json.matches.rows);
-        playerInfo.value.matches.next = json.matches.next;
+
+        matches.value = [...matches.value, ...json.matches.rows];
+        next.value = json.matches.next;
       } catch (error) {
         const alert = await alertController.create({
           header: "오류 발생",
@@ -321,8 +312,6 @@ export default defineComponent({
         loading.dismiss();
       }
     };
-
-    const getResultColor = (result: 'win' | 'lose') => result === 'win' ? 'primary' : 'danger';
 
     const gameNormalRatio = computed(() => {
       let ratio = 0;
@@ -402,27 +391,36 @@ export default defineComponent({
       if (!Common.isNull(oldVal)) playerSearch();
     });
 
+    watch(matches, () => {
+      (matches.value as any[]).map(gameInfo => {
+        gameInfo.playInfo.resultColor = gameInfo.playInfo.result === 'win' ? 'primary' : 'danger';
+        gameInfo.playInfo.partyTypeName = gameInfo.playInfo.partyUserCount > 0 ? `파티 ${gameInfo.playInfo.partyUserCount}인` : "솔로";
+        gameInfo.playInfo.kda = getKDA(gameInfo);
+
+        return gameInfo;
+      });
+    });
+
     onIonViewDidLeave(() => {
       menuController.close("main-menu");
     });
 
     return {
+      NeopleApi,
+      Common,
       searchSharp,
       player,
-      playerSearch,
       playerInfo,
-      enter,
       gameNormalRatio,
       gameNormalRatioColor,
       gameRatingRatio,
       gameRatingRatioColor,
       gameTypeId,
-      NeopleApi,
-      gamePlayType,
-      gameKDA,
+      next,
+      matches,
+      playerSearch,
+      enter,
       addMatches,
-      Common,
-      getResultColor
     };
   },
 });
