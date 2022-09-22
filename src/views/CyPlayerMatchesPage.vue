@@ -42,7 +42,7 @@
 
           <ion-item lines="inset">
             <ion-grid>
-              <ion-row>
+              <ion-row class="ion-align-items-center">
                 <ion-col>
                   K: {{ player.playInfo.killCount }}
                 </ion-col>
@@ -61,7 +61,7 @@
 
           <ion-item lines="inset">
             <ion-grid>
-              <ion-row>
+              <ion-row class="ion-align-items-center">
                 <ion-col>
                   <ion-text color="medium">공격량</ion-text>
                 </ion-col>
@@ -76,7 +76,7 @@
                 </ion-col>
               </ion-row>
 
-              <ion-row>
+              <ion-row class="ion-align-items-center">
                 <ion-col>
                   <ion-text color="medium">전투참여</ion-text>
                 </ion-col>
@@ -91,7 +91,7 @@
                 </ion-col>
               </ion-row>
 
-              <ion-row>
+              <ion-row class="ion-align-items-center">
                 <ion-col>
                   <ion-text color="medium">힐량</ion-text>
                 </ion-col>
@@ -106,7 +106,7 @@
                 </ion-col>
               </ion-row>
 
-              <ion-row>
+              <ion-row class="ion-align-items-center">
                 <ion-col>
                   <ion-text color="medium">획득코인</ion-text>
                 </ion-col>
@@ -121,7 +121,7 @@
                 </ion-col>
               </ion-row>
 
-              <ion-row>
+              <ion-row class="ion-align-items-center">
                 <ion-col size="3">
                   <ion-text color="medium">총 CS</ion-text>
                 </ion-col>
