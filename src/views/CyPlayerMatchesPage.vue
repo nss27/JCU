@@ -12,7 +12,7 @@
     <ion-content :fullscreen="true">
       <ion-list v-if="gameInfo" lines="none">
         <template v-for="(player, index) in players" :key="index">
-          <ion-item :color="player.gameResult">
+          <ion-item :color="player.gameResult" :id="player.playerId">
             <ion-thumbnail slot="start">
               <img :src="`${NeopleApi.cyCharactersUrl}/${player.playInfo.characterId}`" />
               <img :src="NeopleApi.getPositionImage(player.position.name)" class="position-icon" />
@@ -31,7 +31,7 @@
           <ion-item v-if="player.playInfo.partyUserCount > 0" :color="player.gameResult">
             <div>
               <ion-chip v-for="(partyInfo, index) in getParty({...player.playInfo, playerId: player.playerId})"
-                :key="index" color="dark">
+                :key="index" color="dark" @click="moveToId(partyInfo.playerId)">
                 <ion-avatar>
                   <img :src="`${NeopleApi.cyCharactersUrl}/${partyInfo.playInfo.characterId}`">
                 </ion-avatar>
@@ -66,13 +66,13 @@
                   <ion-text color="medium">공격량</ion-text>
                 </ion-col>
                 <ion-col>
-                  {{ player.playInfo.attackPoint }}
+                  {{ commaFormat(player.playInfo.attackPoint) }}
                 </ion-col>
                 <ion-col>
                   <ion-text color="medium">피해량</ion-text>
                 </ion-col>
                 <ion-col>
-                  {{ player.playInfo.damagePoint }}
+                  {{ commaFormat(player.playInfo.damagePoint) }}
                 </ion-col>
               </ion-row>
 
@@ -81,13 +81,13 @@
                   <ion-text color="medium">전투참여</ion-text>
                 </ion-col>
                 <ion-col>
-                  {{ player.playInfo.battlePoint }}
+                  {{ commaFormat(player.playInfo.battlePoint) }}
                 </ion-col>
                 <ion-col>
                   <ion-text color="medium">시야확보</ion-text>
                 </ion-col>
                 <ion-col>
-                  {{ player.playInfo.sightPoint }}
+                  {{ commaFormat(player.playInfo.sightPoint) }}
                 </ion-col>
               </ion-row>
 
@@ -96,23 +96,44 @@
                   <ion-text color="medium">힐량</ion-text>
                 </ion-col>
                 <ion-col>
-                  {{ player.playInfo.healAmount }}
+                  {{ commaFormat(player.playInfo.healAmount) }}
                 </ion-col>
                 <ion-col>
                   <ion-text color="medium">타워공격</ion-text>
                 </ion-col>
                 <ion-col>
-                  {{ player.playInfo.towerAttackPoint }}
+                  {{ commaFormat(player.playInfo.towerAttackPoint) }}
+                </ion-col>
+              </ion-row>
+
+              <ion-row>
+                <ion-col>
+                  <ion-text color="medium">획득코인</ion-text>
+                </ion-col>
+                <ion-col>
+                  {{ commaFormat(player.playInfo.getCoin) }}
+                </ion-col>
+                <ion-col>
+                  <ion-text color="medium">도핑코인</ion-text>
+                </ion-col>
+                <ion-col>
+                  {{ commaFormat(player.playInfo.spendConsumablesCoin) }}
                 </ion-col>
               </ion-row>
 
               <ion-row>
                 <ion-col size="3">
-                  <ion-text color="medium">획득코인</ion-text>
+                  <ion-text color="medium">총 CS</ion-text>
                 </ion-col>
                 <ion-col>
-                  {{ player.playInfo.getCoin }}
+                  {{ getCSCount({...player.playInfo}) }}
                 </ion-col>
+                <!-- <ion-col>
+                  <ion-text color="medium">분당 CS</ion-text>
+                </ion-col>
+                <ion-col>
+                  {{ getCSCount({...player.playInfo}) }}
+                </ion-col> -->
               </ion-row>
             </ion-grid>
           </ion-item>
@@ -265,6 +286,22 @@ export default defineComponent({
       });
     }
 
+    const commaFormat = (data: string | number) => {
+      let list = [...String(data)];
+      if (list.length > 3) {
+        list = list.reverse().map((val, i) => (i + 1) % 3 === 0 ? `,${val}` : val).reverse();
+      }
+      return list.join('');
+    };
+
+    const getCSCount = (data: { sentinelKillCount: number, demolisherKillCount: number }) => commaFormat(data.sentinelKillCount + data.demolisherKillCount);
+
+    const moveToId = (playerId: string) => {
+      router.replace({
+        hash: `#${playerId}`
+      })
+    }
+
     onMounted(async () => {
       const loading = await loadingController.create({
         message: "데이터 조회중",
@@ -300,7 +337,10 @@ export default defineComponent({
       getParty,
       gameKDA,
       getSeason,
-      getPositionInfo
+      getPositionInfo,
+      commaFormat,
+      getCSCount,
+      moveToId
     };
   },
 });
