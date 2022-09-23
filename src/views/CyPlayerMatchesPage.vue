@@ -154,7 +154,8 @@
               <div class="item-box">
                 <div v-for="(item, index) in player.items" :key="index" :class="item.cssClass"
                   @click="getItemInfo(item.itemId)">
-                  <img :src="`${NeopleApi.cyitemsUrl}/${item.itemId}`">
+                  <img v-if="!Common.isNull(item.itemId)" :src="`${NeopleApi.cyitemsUrl}/${item.itemId}`">
+                  <img v-else :src="`/assets/images/item-slot-${item.equipSlotCode}.png`">
                 </div>
               </div>
             </ion-label>
@@ -221,6 +222,24 @@ export default defineComponent({
     const route = useRoute();
     const router = useRouter();
     const gameInfo = ref();
+    const equipSlotCodeInfo: { [key: number]: string } = {
+      101: '손(공격)',
+      102: '머리(치명)',
+      103: '가슴(체력)',
+      104: '허리(회피)',
+      105: '다리(방어)',
+      106: '발(이동)',
+      202: '장신구1',
+      203: '장신구2',
+      301: '회복킷',
+      302: '가속킷',
+      303: '공격킷',
+      304: '방어킷',
+      305: '특수킷',
+      107: '목',
+      204: '장신구3',
+      205: '장신구4'
+    };
 
     const players = computed(() => {
       const result = [] as any[];
@@ -230,8 +249,34 @@ export default defineComponent({
           (team.players as string[]).forEach((playerId) => {
             const playerData = (gameInfo.value.players as any[]).filter((info) => info.playerId === playerId)[0];
 
+            if ((16 - playerData.items.length) > 0) {
+              let equipSlotCodeKeyStr = Object.keys(equipSlotCodeInfo).join(' ');
+              const useItems = [...playerData.items].map(item => item.equipSlotCode);
+
+              useItems.forEach(equipSlotCode => {
+                equipSlotCodeKeyStr = equipSlotCodeKeyStr.replace(equipSlotCode, '');
+              });
+
+              const defaultItems = equipSlotCodeKeyStr.split(' ').filter(slotCode => !Common.isNull(slotCode)).map(slotCode => Number(slotCode));
+
+              for (let i = 0; i < defaultItems.length; i++) {
+                const slotCode = defaultItems[i];
+
+                (playerData.items as any[]).push({
+                  itemId: null,
+                  itemName: "기본",
+                  slotCode: slotCode,
+                  slotName: equipSlotCodeInfo[slotCode],
+                  rarityCode: "101",
+                  rarityName: "커먼",
+                  equipSlotCode: slotCode,
+                  equipSlotName: equipSlotCodeInfo[slotCode]
+                });
+              }
+            }
+
             (playerData.items as any[]).map(item => {
-              item.cssClass = [`item-${item.slotCode}`, getSeason(item.itemName)];
+              item.cssClass = [`item-${item.equipSlotCode}`, getSeason(item.itemName), getItemColor(item.rarityName)];
               return item;
             });
 
@@ -273,13 +318,37 @@ export default defineComponent({
     };
 
     const getSeason = (itemName: string) => {
-      let season = itemName.substring(0, 1);
+      let season = itemName.substring(0, 2).trim();
       if (['E', 'S'].includes(season)) {
         return `season-${season}`;
       } else {
         return null;
       }
     };
+
+    const getItemColor = (rarityName: '커먼' | '언커먼' | '레어' | '유니크') => {
+      let color = '';
+
+      switch (rarityName) {
+        case '유니크':
+          color = 'unique';
+          break;
+
+        case '레어':
+          color = 'rare';
+          break;
+
+        case '언커먼':
+          color = 'primary';
+          break;
+
+        default:
+          color = 'medium';
+          break;
+      }
+
+      return `border-${color}`;
+    }
 
     const getPlayTypes = (data: { playInfo: { random: boolean, playTypeName: '정상' | '난입' | '재입장' } }) => {
       const result: string[] = [];
@@ -289,9 +358,11 @@ export default defineComponent({
     }
 
     const getItemInfo = async (itemId: string) => {
-      router.push({
-        path: `/itemInfo/${itemId}`
-      });
+      if (!Common.isNull(itemId)) {
+        router.push({
+          path: `/itemInfo/${itemId}`
+        });
+      }
     }
 
     const getPositionInfo = (attributeId: string) => {
@@ -374,76 +445,78 @@ ion-thumbnail {
 .item-box {
   display: grid;
   grid-template-areas:
-    '101 102 103 104 105 106 202 203'
-    '301 302 303 304 305 107 204 205';
+    'slot-101 slot-102 slot-103 slot-104 slot-105 slot-106 slot-202 slot-203'
+    'slot-301 slot-302 slot-303 slot-304 slot-305 slot-107 slot-204 slot-205';
+  width: fit-content;
 }
 
-.item-box>div {
+.item-box>div>img {
   margin-bottom: -4px;
+  width: 100%;
 }
 
 .item-box .item-101 {
-  grid-area: '101';
+  grid-area: slot-101;
 }
 
 .item-box .item-102 {
-  grid-area: '102';
+  grid-area: slot-102;
 }
 
 .item-box .item-103 {
-  grid-area: '103';
+  grid-area: slot-103;
 }
 
 .item-box .item-104 {
-  grid-area: '104';
+  grid-area: slot-104;
 }
 
 .item-box .item-105 {
-  grid-area: '105';
+  grid-area: slot-105;
 }
 
 .item-box .item-106 {
-  grid-area: '106';
+  grid-area: slot-106;
 }
 
 .item-box .item-202 {
-  grid-area: '202';
+  grid-area: slot-202;
 }
 
 .item-box .item-203 {
-  grid-area: '203';
+  grid-area: slot-203;
 }
 
 .item-box .item-301 {
-  grid-area: '301';
+  grid-area: slot-301;
 }
 
 .item-box .item-302 {
-  grid-area: '302';
+  grid-area: slot-302;
 }
 
 .item-box .item-303 {
-  grid-area: '303';
+  grid-area: slot-303;
 }
 
 .item-box .item-304 {
-  grid-area: '304';
+  grid-area: slot-304;
 }
 
 .item-box .item-305 {
-  grid-area: '305';
+  grid-area: slot-305;
 }
 
 .item-box .item-107 {
-  grid-area: '107';
+  grid-area: slot-107;
 }
 
 .item-box .item-204 {
-  grid-area: '204';
+  grid-area: slot-204;
 }
 
 .item-box .item-205 {
-  grid-area: '205';
+  grid-area: slot-205;
 }
 
 .position-box {
@@ -464,5 +537,21 @@ ion-thumbnail {
   padding: 0 5px;
   background-color: #000000;
   color: #ffffff;
+}
+
+.border-medium {
+  border: solid 2px var(--ion-color-medium);
+}
+
+.border-primary {
+  border: solid 2px var(--ion-color-primary);
+}
+
+.border-rare {
+  border: solid 2px var(--ion-color-rare);
+}
+
+.border-unique {
+  border: solid 2px var(--ion-color-unique);
 }
 </style>

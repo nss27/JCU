@@ -15,6 +15,16 @@
           </ion-button>
         </ion-buttons>
       </ion-toolbar>
+      <ion-toolbar v-if="!Common.isNull(searchWords)">
+        <div class="search-list">
+          <div v-for="(word, index) in searchWords" :key="index">
+            <ion-chip>
+              <ion-label>{{word}}</ion-label>
+              <ion-icon :icon="close"></ion-icon>
+            </ion-chip>
+          </div>
+        </div>
+      </ion-toolbar>
     </ion-header>
 
     <ion-content :fullscreen="true" id="main">
@@ -184,12 +194,14 @@ import {
   IonSegment,
   IonSegmentButton,
   IonThumbnail,
+  IonChip,
 } from "@ionic/vue";
-import { computed, defineComponent, ref, watch } from "vue";
-import { searchSharp } from "ionicons/icons";
+import { computed, defineComponent, onMounted, ref, watch } from "vue";
+import { searchSharp, close } from "ionicons/icons";
 import NeopleApi from "@/utils/NeopleApi";
 import Common from "@/utils/Common";
 import NoData from "@/components/NoData.vue";
+import { IDBPDatabase, openDB } from 'idb';
 
 export default defineComponent({
   components: {
@@ -218,6 +230,7 @@ export default defineComponent({
     IonSegmentButton,
     IonThumbnail,
     NoData,
+    IonChip
   },
   setup() {
     const player = ref("");
@@ -226,6 +239,9 @@ export default defineComponent({
     const gameTypeId = ref('');
     const next = ref('');
     const matches = ref();
+    const searchWords = ref();
+    const tableName = 'search-words';
+    let idb: IDBPDatabase<unknown>;
 
     const playerSearch = async () => {
       const loading = await loadingController.create({
@@ -265,6 +281,10 @@ export default defineComponent({
         await alert.present();
       } finally {
         loading.dismiss();
+
+        await idb.delete(tableName, player.value);
+        await idb.put(tableName, player.value, player.value);
+        searchWords.value = await idb.getAll(tableName);
       }
     };
 
@@ -405,10 +425,23 @@ export default defineComponent({
       menuController.close("main-menu");
     });
 
+    onMounted(async () => {
+      idb = await openDB('jcu', 1, {
+        upgrade(db) {
+          if (!db.objectStoreNames.contains(tableName)) {
+            db.createObjectStore(tableName);
+          }
+        },
+      });
+
+      searchWords.value = await idb.getAll(tableName);
+    });
+
     return {
+      searchSharp,
+      close,
       NeopleApi,
       Common,
-      searchSharp,
       player,
       playerInfo,
       gameNormalRatio,
@@ -418,6 +451,7 @@ export default defineComponent({
       gameTypeId,
       next,
       matches,
+      searchWords,
       playerSearch,
       enter,
       addMatches,
@@ -442,5 +476,22 @@ ion-thumbnail {
   height: var(--size);
   bottom: -10px;
   right: -16px;
+}
+
+.search-list {
+  display: flex;
+  overflow: scroll;
+}
+
+.search-list::-webkit-scrollbar {
+  display: none;
+}
+
+.search-list>div {
+  width: fit-content;
+}
+
+.search-list>div>ion-chip {
+  white-space: nowrap;
 }
 </style>

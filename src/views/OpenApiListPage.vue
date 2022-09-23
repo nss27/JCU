@@ -79,6 +79,38 @@ export default defineComponent({
     setup() {
         const openApis = ref(OpenApi);
 
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            openApis.value.map(data => {
+                if (data.logo) {
+                    const path = data.logo.split('/');
+                    const img = path[path.length - 1];
+                    if (!img.includes('-dark')) {
+                        const imgName = img.substring(0, img.lastIndexOf('.'));
+                        const imgExp = img.substring(img.lastIndexOf('.'));
+                        path[path.length - 1] = `${imgName}-dark${imgExp}`;
+                        data.logo = path.join('/');
+                    }
+                }
+
+                return data;
+            });
+        } else {
+            openApis.value.map(data => {
+                if (data.logo) {
+                    const path = data.logo.split('/');
+                    const img = path[path.length - 1];
+                    if (img.includes('-dark')) {
+                        const imgName = img.substring(0, img.lastIndexOf('.'));
+                        const imgExp = img.substring(img.lastIndexOf('.'));
+                        path[path.length - 1] = `${imgName.replace('-dark', '')}${imgExp}`;
+                        data.logo = path.join('/');
+                    }
+                }
+
+                return data;
+            });
+        }
+
         return {
             openApis
         }

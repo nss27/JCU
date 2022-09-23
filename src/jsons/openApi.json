@@ -10,5 +10,11 @@
     "homepage": "https://apis.map.kakao.com/",
     "terms": "https://developers.kakao.com/terms/latest/ko/site-terms",
     "logo": null
+  },
+  {
+    "apiName": "Google Sheets API",
+    "homepage": "https://developers.google.com/sheets/api",
+    "terms": "https://policies.google.com/terms?hl=ko",
+    "logo": null
   }
 ]

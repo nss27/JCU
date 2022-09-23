@@ -4,7 +4,7 @@
   "dir": "ltr",
   "display": "standalone",
   "name": "JCU",
-  "orientation": "any",
+  "orientation": "portrait",
   "scope": "/",
   "short_name": "JCU",
   "start_url": "/",
@@ -18,7 +18,7 @@
     {
       "src": "assets/icon/icon-jcu.png",
       "type": "image/png",
-      "sizes": "520x520"
+      "sizes": "512x512"
     }
   ]
 }
