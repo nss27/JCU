@@ -8,7 +8,7 @@
         <ion-title>전사연</ion-title>
       </ion-toolbar>
       <ion-toolbar>
-        <ion-searchbar placeholder="닉네임을 입력하세요" v-model="player" @keypress="enter($event)"></ion-searchbar>
+        <ion-searchbar placeholder="닉네임을 입력하세요" v-model="playerName" @keypress="enter($event)"></ion-searchbar>
         <ion-buttons slot="end">
           <ion-button fill="clear" @click="playerSearch()">
             <ion-icon :icon="searchSharp" slot="icon-only"></ion-icon>
@@ -17,10 +17,10 @@
       </ion-toolbar>
       <ion-toolbar v-if="!Common.isNull(searchWords)">
         <div class="search-list">
-          <div v-for="(word, index) in searchWords" :key="index">
-            <ion-chip>
-              <ion-label>{{word}}</ion-label>
-              <ion-icon :icon="close"></ion-icon>
+          <div v-for="(row, index) in searchWords" :key="index">
+            <ion-chip @click="searchWordsClick(row.word)">
+              <ion-label>{{row.word}}</ion-label>
+              <ion-icon :icon="close" @click.stop="searchWordsDelete(row.date)"></ion-icon>
             </ion-chip>
           </div>
         </div>
@@ -233,7 +233,7 @@ export default defineComponent({
     IonChip
   },
   setup() {
-    const player = ref("");
+    const playerName = ref("");
     const playerId = ref("");
     const playerInfo = ref();
     const gameTypeId = ref('');
@@ -252,7 +252,7 @@ export default defineComponent({
 
       try {
         const playerIdJson = await NeopleApi.cyPlayerId({
-          nickname: encodeURI(player.value),
+          nickname: encodeURI(playerName.value),
         });
 
         if (Common.isNull(playerIdJson.rows)) {
@@ -282,8 +282,11 @@ export default defineComponent({
       } finally {
         loading.dismiss();
 
-        await idb.delete(tableName, player.value);
-        await idb.put(tableName, player.value, player.value);
+        const list = (searchWords.value as any[]).filter(data => data.word === playerName.value);
+        list.forEach(async data => {
+          await idb.delete(tableName, data.date);
+        });
+        await idb.put(tableName, { word: playerName.value, date: Date.now() }, Date.now());
         searchWords.value = await idb.getAll(tableName);
       }
     };
@@ -294,6 +297,16 @@ export default defineComponent({
           playerSearch();
         }, 250);
       }
+    };
+
+    const searchWordsClick = (word: string) => {
+      playerName.value = word;
+      playerSearch();
+    };
+
+    const searchWordsDelete = async (date: Date) => {
+      await idb.delete(tableName, date);
+      searchWords.value = await idb.getAll(tableName);
     };
 
     const getKDA = (data: { playInfo: { killCount: number, deathCount: number, assistCount: number } }) => {
@@ -421,6 +434,10 @@ export default defineComponent({
       });
     });
 
+    watch(searchWords, () => {
+      (searchWords.value as any[]).sort((a, b) => b.date - a.date)
+    })
+
     onIonViewDidLeave(() => {
       menuController.close("main-menu");
     });
@@ -442,7 +459,7 @@ export default defineComponent({
       close,
       NeopleApi,
       Common,
-      player,
+      playerName,
       playerInfo,
       gameNormalRatio,
       gameNormalRatioColor,
@@ -455,6 +472,8 @@ export default defineComponent({
       playerSearch,
       enter,
       addMatches,
+      searchWordsClick,
+      searchWordsDelete
     };
   },
 });
