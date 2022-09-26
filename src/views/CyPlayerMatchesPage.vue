@@ -451,7 +451,7 @@ ion-thumbnail {
 }
 
 .item-box>div>img {
-  width: 100%;
+  width: 64px;
 }
 
 .item-box .item-101 {
