@@ -4,7 +4,6 @@
   "dir": "ltr",
   "display": "standalone",
   "name": "JCU",
-  "orientation": "portrait",
   "scope": "/",
   "short_name": "JCU",
   "start_url": "/",
