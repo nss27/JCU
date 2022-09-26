@@ -163,7 +163,7 @@
         </template>
       </ion-list>
       <template v-else>
-        <NoData></NoData>
+        <NoDataVue></NoDataVue>
       </template>
     </ion-content>
   </ion-page>
@@ -195,7 +195,7 @@ import {
 import NeopleApi from "@/utils/NeopleApi";
 import { useRoute, useRouter } from "vue-router";
 import Common from "@/utils/Common";
-import NoData from "@/components/NoData.vue";
+import NoDataVue from "@/components/NoData.vue";
 
 export default defineComponent({
   components: {
@@ -206,7 +206,6 @@ export default defineComponent({
     IonBackButton,
     IonTitle,
     IonContent,
-    NoData,
     IonList,
     IonItem,
     IonChip,
@@ -216,7 +215,8 @@ export default defineComponent({
     IonRow,
     IonCol,
     IonThumbnail,
-    IonText
+    IonText,
+    NoDataVue
   },
   setup() {
     const route = useRoute();

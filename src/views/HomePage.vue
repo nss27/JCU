@@ -86,7 +86,7 @@
             </ion-grid>
           </ion-item>
           <ion-item v-else>
-            <NoData text="배치고사중"></NoData>
+            <NoDataVue text="배치고사중"></NoDataVue>
           </ion-item>
           <ion-list-header>
             <ion-label>
@@ -105,7 +105,7 @@
           </ion-item>
           <template v-if="Common.isNull(matches)">
             <ion-item>
-              <NoData text="매칭기록이 존재하지 않습니다"></NoData>
+              <NoDataVue text="매칭기록이 존재하지 않습니다"></NoDataVue>
             </ion-item>
           </template>
           <template v-else>
@@ -134,7 +134,7 @@
         </ion-button>
       </template>
       <template v-else>
-        <NoData></NoData>
+        <NoDataVue></NoDataVue>
       </template>
     </ion-content>
 
@@ -200,8 +200,8 @@ import { computed, defineComponent, onMounted, ref, watch } from "vue";
 import { searchSharp, close } from "ionicons/icons";
 import NeopleApi from "@/utils/NeopleApi";
 import Common from "@/utils/Common";
-import NoData from "@/components/NoData.vue";
 import { IDBPDatabase, openDB } from 'idb';
+import NoDataVue from "@/components/NoData.vue";
 
 export default defineComponent({
   components: {
@@ -229,8 +229,8 @@ export default defineComponent({
     IonSegment,
     IonSegmentButton,
     IonThumbnail,
-    NoData,
-    IonChip
+    IonChip,
+    NoDataVue
   },
   setup() {
     const playerName = ref("");

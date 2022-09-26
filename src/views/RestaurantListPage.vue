@@ -11,27 +11,20 @@
         <ion-searchbar v-model="sotreSearch" :debounce="250"></ion-searchbar>
       </ion-toolbar>
       <ion-toolbar>
-        <ion-chip
-          v-for="(item, index) in storeTypes"
-          :key="index"
-          :outline="!(item === storeTypeSearch)"
-          @click="() => (storeTypeSearch = item)"
-          >{{ item }}
+        <ion-chip v-for="(item, index) in storeTypes" :key="index" :outline="!(item === storeTypeSearch)"
+          @click="() => (storeTypeSearch = item)">{{ item }}
         </ion-chip>
       </ion-toolbar>
     </ion-header>
 
     <ion-content :fullscreen="true">
       <template v-if="Common.isNull(showStoreList)">
-        <NoData></NoData>
+        <NoDataVue></NoDataVue>
       </template>
       <template v-else>
         <template v-for="store in showStoreList" :key="store">
-          <StoreCard
-            :storeInfo="store"
-            :router-link="`/restaurant/${store.no}`"
-          >
-          </StoreCard>
+          <StoreCardVue :storeInfo="store" :router-link="`/restaurant/${store.no}`">
+          </StoreCardVue>
         </template>
       </template>
     </ion-content>
@@ -53,10 +46,10 @@ import {
   alertController,
 } from "@ionic/vue";
 import { computed, defineComponent, onMounted, ref, watch } from "vue";
-import StoreCard from "@/components/StoreCard.vue";
 import GoogleApi from "@/utils/GoogleApi";
 import Common from "@/utils/Common";
-import NoData from "@/components/NoData.vue";
+import StoreCardVue from "@/components/StoreCard.vue";
+import NoDataVue from "@/components/NoData.vue";
 
 export default defineComponent({
   components: {
@@ -68,9 +61,9 @@ export default defineComponent({
     IonSearchbar,
     IonButtons,
     IonBackButton,
-    StoreCard,
     IonChip,
-    NoData,
+    StoreCardVue,
+    NoDataVue
   },
   setup() {
     const storeList = ref([] as any[]);

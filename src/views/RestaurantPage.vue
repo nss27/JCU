@@ -11,17 +11,12 @@
 
     <ion-content>
       <template v-if="Common.isNull(storeInfo)">
-        <NoData></NoData>
+        <NoDataVue></NoDataVue>
       </template>
       <template v-else>
-        <KakaoMap
-          height="50%"
-          level="3"
-          :center="storeInfo['store-position']"
-          :markerOptions="storeMarkerOptions"
-          v-if="storeInfo['store-position']"
-        >
-        </KakaoMap>
+        <KakaoMapVue height="50%" level="3" :center="storeInfo['store-position']" :marker-options="storeMarkerOptions"
+          v-if="storeInfo['store-position']">
+        </KakaoMapVue>
         <ion-list lines="none">
           <ion-item>
             <ion-label class="ion-text-wrap">
@@ -35,12 +30,7 @@
               <h1>주소</h1>
               <p>{{ storeAddress }}</p>
             </ion-label>
-            <ion-button
-              fill="clear"
-              :href="wayfinding"
-              target="_blank"
-              v-if="storeInfo['store-position']"
-            >
+            <ion-button fill="clear" :href="wayfinding" target="_blank" v-if="storeInfo['store-position']">
               <ion-icon :icon="navigate" slot="icon-only"></ion-icon>
             </ion-button>
           </ion-item>
@@ -69,12 +59,12 @@ import {
   loadingController,
   alertController,
 } from "@ionic/vue";
-import KakaoMap from "@/components/KakaoMap.vue";
 import Common from "@/utils/Common";
 import GoogleApi from "@/utils/GoogleApi";
 import { useRoute } from "vue-router";
 import { navigate } from "ionicons/icons";
-import NoData from "@/components/NoData.vue";
+import KakaoMapVue from "@/components/KakaoMap.vue";
+import NoDataVue from "@/components/NoData.vue";
 
 export default defineComponent({
   components: {
@@ -89,10 +79,10 @@ export default defineComponent({
     IonItem,
     IonLabel,
     IonText,
-    KakaoMap,
     IonButton,
     IonIcon,
-    NoData,
+    KakaoMapVue,
+    NoDataVue
   },
   setup() {
     const route = useRoute();
