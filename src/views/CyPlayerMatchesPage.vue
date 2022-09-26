@@ -451,7 +451,6 @@ ion-thumbnail {
 }
 
 .item-box>div>img {
-  margin-bottom: -4px;
   width: 100%;
 }
 
