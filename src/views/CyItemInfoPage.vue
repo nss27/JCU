@@ -93,7 +93,7 @@ export default defineComponent({
                 mode: "ios",
             });
 
-            loading.present();
+            await loading.present();
 
             try {
                 itemInfo.value = await NeopleApi.cyItemsInfo({ itemId: itemId });

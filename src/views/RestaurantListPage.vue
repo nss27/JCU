@@ -18,14 +18,11 @@
     </ion-header>
 
     <ion-content :fullscreen="true">
-      <template v-if="Common.isNull(showStoreList)">
-        <NoDataVue></NoDataVue>
-      </template>
+      <NoDataVue v-if="Common.isNull(showStoreList)"></NoDataVue>
       <template v-else>
-        <template v-for="store in showStoreList" :key="store">
-          <StoreCardVue :storeInfo="store" :router-link="`/restaurant/${store.no}`">
-          </StoreCardVue>
-        </template>
+        <StoreCardVue v-for="store in showStoreList" :key="store" :storeInfo="store"
+          :router-link="`/restaurant/${store.no}`">
+        </StoreCardVue>
       </template>
     </ion-content>
   </ion-page>
@@ -104,7 +101,9 @@ export default defineComponent({
         message: "데이터 조회중",
         mode: "ios",
       });
-      loading.present();
+
+      await loading.present();
+
       try {
         storeList.value = await GoogleApi.getSingleSheetData("맛집정보");
         storeList.value.forEach((store) => (store.show = true));

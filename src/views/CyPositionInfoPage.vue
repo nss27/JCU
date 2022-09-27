@@ -75,7 +75,7 @@ export default defineComponent({
                 mode: "ios",
             });
 
-            loading.present();
+            await loading.present();
 
             try {
                 positionInfo.value = await NeopleApi.cyPositionInfo({ attributeId: attributeId });

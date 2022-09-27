@@ -10,9 +10,7 @@
     </ion-header>
 
     <ion-content>
-      <template v-if="Common.isNull(storeInfo)">
-        <NoDataVue></NoDataVue>
-      </template>
+      <NoDataVue v-if="Common.isNull(storeInfo)"></NoDataVue>
       <template v-else>
         <KakaoMapVue height="50%" level="3" :center="storeInfo['store-position']" :marker-options="storeMarkerOptions"
           v-if="storeInfo['store-position']">
@@ -118,7 +116,8 @@ export default defineComponent({
         message: "데이터 조회중",
         mode: "ios",
       });
-      loading.present();
+
+      await loading.present();
 
       try {
         const list = (await GoogleApi.getSingleSheetData("맛집정보")) as any[];

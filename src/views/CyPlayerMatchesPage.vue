@@ -162,9 +162,7 @@
           </ion-item>
         </template>
       </ion-list>
-      <template v-else>
-        <NoDataVue></NoDataVue>
-      </template>
+      <NoDataVue v-else></NoDataVue>
     </ion-content>
   </ion-page>
 </template>
@@ -389,7 +387,7 @@ export default defineComponent({
         mode: "ios",
       });
 
-      loading.present();
+      await loading.present();
 
       try {
         gameInfo.value = await NeopleApi.cyPlayerMatchesInfo({
