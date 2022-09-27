@@ -155,7 +155,7 @@
                 <div v-for="(item, index) in player.items" :key="index" :class="item.cssClass"
                   @click="getItemInfo(item.itemId)">
                   <img v-if="!Common.isNull(item.itemId)" :src="`${NeopleApi.cyitemsUrl}/${item.itemId}`">
-                  <img v-else :src="`/assets/images/item-slot-${item.equipSlotCode}.png`">
+                  <img v-else :src="`/assets/images/cyphers/item-slot-${item.equipSlotCode}.png`">
                 </div>
               </div>
             </ion-label>

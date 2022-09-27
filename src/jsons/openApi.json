@@ -3,18 +3,21 @@
     "apiName": "사이퍼즈 API",
     "homepage": "https://developers.neople.co.kr/",
     "terms": "https://developers.neople.co.kr/contents/policy",
-    "logo": "/assets/images/neople-logo.png"
+    "logo": "/assets/images/logo/neople-logo.png",
+    "logo-dark-mode": "/assets/images/logo/neople-logo-dark.png"
   },
   {
     "apiName": "Kakao 지도 Javscript API",
     "homepage": "https://apis.map.kakao.com/",
     "terms": "https://developers.kakao.com/terms/latest/ko/site-terms",
-    "logo": null
+    "logo": null,
+    "logo-dark-mode": null
   },
   {
     "apiName": "Google Sheets API",
     "homepage": "https://developers.google.com/sheets/api",
     "terms": "https://policies.google.com/terms?hl=ko",
-    "logo": null
+    "logo": null,
+    "logo-dark-mode": null
   }
 ]

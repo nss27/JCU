@@ -16,8 +16,11 @@
                         <ion-col>
                             <ion-text color="dark">{{ openApi.apiName }}</ion-text>
                         </ion-col>
-                        <ion-col size="3" v-if="openApi.logo">
+                        <ion-col size="3" v-if="theme === 'light' && openApi.logo">
                             <img :src="openApi.logo">
+                        </ion-col>
+                        <ion-col size="3" v-if="theme === 'dark' && openApi['logo-dark-mode']">
+                            <img :src="openApi['logo-dark-mode']">
                         </ion-col>
                     </ion-row>
                 </ion-grid>
@@ -78,41 +81,17 @@ export default defineComponent({
     },
     setup() {
         const openApis = ref(OpenApi);
+        const theme = ref('');
 
-        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-            openApis.value.map(data => {
-                if (data.logo) {
-                    const path = data.logo.split('/');
-                    const img = path[path.length - 1];
-                    if (!img.includes('-dark')) {
-                        const imgName = img.substring(0, img.lastIndexOf('.'));
-                        const imgExp = img.substring(img.lastIndexOf('.'));
-                        path[path.length - 1] = `${imgName}-dark${imgExp}`;
-                        data.logo = path.join('/');
-                    }
-                }
+        theme.value = window.matchMedia("(prefers-color-scheme: dark)").matches ? 'dark' : 'light';
 
-                return data;
-            });
-        } else {
-            openApis.value.map(data => {
-                if (data.logo) {
-                    const path = data.logo.split('/');
-                    const img = path[path.length - 1];
-                    if (img.includes('-dark')) {
-                        const imgName = img.substring(0, img.lastIndexOf('.'));
-                        const imgExp = img.substring(img.lastIndexOf('.'));
-                        path[path.length - 1] = `${imgName.replace('-dark', '')}${imgExp}`;
-                        data.logo = path.join('/');
-                    }
-                }
-
-                return data;
-            });
-        }
+        window.matchMedia("(prefers-color-scheme: dark)").addEventListener('change', e => {
+            theme.value = e.matches ? 'dark' : 'light';
+        });
 
         return {
-            openApis
+            openApis,
+            theme
         }
     },
 })

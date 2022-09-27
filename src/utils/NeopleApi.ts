@@ -1,10 +1,10 @@
 const key = "Ovr9f6SIy2k51tRJft9rThyaMArHqCsO";
 const proxyServer = "https://jcu.duckdns.org:3000";
 const positionImages = {
-  원거리딜러: "/assets/images/long-distance-dealer.png",
-  근거리딜러: "/assets/images/short-distance-dealer.png",
-  탱커: "/assets/images/tanker.png",
-  서포터: "/assets/images/supporter.png",
+  원거리딜러: "/assets/images/cyphers/long-distance-dealer.png",
+  근거리딜러: "/assets/images/cyphers/short-distance-dealer.png",
+  탱커: "/assets/images/cyphers/tanker.png",
+  서포터: "/assets/images/cyphers/supporter.png",
 };
 
 export default class NeopleApi {
