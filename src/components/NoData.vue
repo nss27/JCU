@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, toRefs } from "vue";
+import { computed, defineComponent, toRefs } from "vue";
 import { IonGrid, IonRow, IonCol } from "@ionic/vue";
 import Common from "@/utils/Common";
 
@@ -20,13 +20,8 @@ export default defineComponent({
   },
   setup(props) {
     const { text } = toRefs(props);
-    const showText = ref(text.value);
 
-    onMounted(() => {
-      if (Common.isNull(text.value)) {
-        showText.value = "조회된 데이터가 없습니다";
-      }
-    });
+    const showText = computed(() => Common.isNull(text.value) ? '조회된 데이터가 없습니다' : text.value);
 
     return {
       showText,

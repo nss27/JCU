@@ -1,5 +1,5 @@
 <template>
-    <ion-content :fullscreen="true" class="ion-text-start" v-if="playerInfo">
+    <ion-content class="ion-text-start" v-if="playerInfo">
         <ion-list lines="none">
             <ion-item>
                 <ion-grid class="no-padding">
@@ -84,7 +84,7 @@
                         {{ gameInfo.playInfo.result }}
                     </ion-note>
                     <ion-thumbnail slot="start">
-                        <img :src="`${NeopleApi.cyCharactersUrl}/${gameInfo.playInfo.characterId}`" />
+                        <img :src="NeopleApi.getCharacterImage(gameInfo.playInfo.characterId)" />
                         <img :src="NeopleApi.getPositionImage(gameInfo.position.name)" class="position-icon" />
                     </ion-thumbnail>
                     <ion-label>
@@ -126,11 +126,11 @@ import {
     IonList,
     IonButton
 } from '@ionic/vue';
-import { computed, defineComponent, onBeforeMount, ref, toRefs, watch } from 'vue'
+import { computed, defineComponent, onMounted, ref, toRefs, watch } from 'vue'
 import NoDataVue from './NoData.vue';
 
 export default defineComponent({
-    props: ['playerId'],
+    props: ['playerId', 'playerNickname'],
     components: {
         IonContent,
         IonText,
@@ -149,7 +149,7 @@ export default defineComponent({
         NoDataVue
     },
     setup(props) {
-        const { playerId } = toRefs(props);
+        const { playerId, playerNickname } = toRefs(props);
         const playerInfo = ref();
         const gameTypeId = ref<'rating' | 'normal'>('rating');
         const next = ref('');
@@ -158,7 +158,7 @@ export default defineComponent({
 
         const playerSearch = async () => {
             const loading = await loadingController.create({
-                message: "플레이어 정보 조회중",
+                message: `플레이어 '${playerNickname.value}'<br>정보 조회중`,
                 mode: "ios",
             });
 
@@ -182,7 +182,7 @@ export default defineComponent({
 
                 await alert.present();
             } finally {
-                loading.dismiss();
+                await loading.dismiss();
             }
         };
 
@@ -220,7 +220,7 @@ export default defineComponent({
 
                 await alert.present();
             } finally {
-                loading.dismiss();
+                await loading.dismiss();
             }
         };
 
@@ -316,7 +316,7 @@ export default defineComponent({
             (searchWords.value as any[]).sort((a, b) => b.date - a.date)
         })
 
-        onBeforeMount(() => {
+        onMounted(() => {
             playerSearch();
         })
 

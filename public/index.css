@@ -1,6 +1,21 @@
+/* Restaurant Page */
 .name-tag {
   font-size: 12px;
   font-weight: bold;
   background-color: #00000085;
   color: #ffffff;
+}
+
+/* swiper */
+.swiper {
+  height: 100% !important;
+}
+
+.swiper-pagination-bullet {
+  opacity: 1 !important;
+  background: var(--ion-color-dark) !important;
+}
+
+.swiper-pagination-bullet-active {
+  background: var(--ion-color-danger) !important;
 }

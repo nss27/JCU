@@ -14,7 +14,7 @@
         <template v-for="(player, index) in players" :key="index">
           <ion-item :color="player.playInfo.gameResult" :id="player.playerId">
             <ion-thumbnail slot="start">
-              <img :src="`${NeopleApi.cyCharactersUrl}/${player.playInfo.characterId}`" />
+              <img :src="NeopleApi.getCharacterImage(player.playInfo.characterId)" />
               <img :src="NeopleApi.getPositionImage(player.position.name)" class="position-icon" />
             </ion-thumbnail>
             <ion-label>
@@ -33,7 +33,7 @@
               <ion-chip v-for="(partyInfo, index) in player.playInfo.partyData" :key="index" color="dark"
                 @click="moveToId(partyInfo.playerId)">
                 <ion-avatar>
-                  <img :src="`${NeopleApi.cyCharactersUrl}/${partyInfo.playInfo.characterId}`">
+                  <img :src="NeopleApi.getCharacterImage(partyInfo.playInfo.characterId)">
                 </ion-avatar>
                 <ion-label>{{partyInfo.nickname}}</ion-label>
               </ion-chip>
@@ -155,7 +155,7 @@
                 <div v-for="(item, index) in player.items" :key="index" :class="item.cssClass"
                   @click="getItemInfo(item.itemId)">
                   <img v-if="!Common.isNull(item.itemId)" :src="`${NeopleApi.cyitemsUrl}/${item.itemId}`">
-                  <img v-else :src="`/assets/images/cyphers/item-slot-${item.equipSlotCode}.png`">
+                  <img v-else :src="`/assets/images/cyphers/item-slot/${item.equipSlotCode}.png`">
                 </div>
               </div>
             </ion-label>
@@ -403,7 +403,7 @@ export default defineComponent({
 
         await alert.present();
       } finally {
-        loading.dismiss();
+        await loading.dismiss();
       }
     });
 

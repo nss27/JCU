@@ -8,7 +8,7 @@
         <ion-title>맛집지도</ion-title>
       </ion-toolbar>
       <ion-toolbar>
-        <ion-searchbar v-model="sotreSearch" :debounce="250"></ion-searchbar>
+        <ion-searchbar v-model="sotreSearch" :debounce="250" placeholder="가게명을 입력하세요"></ion-searchbar>
       </ion-toolbar>
       <ion-toolbar>
         <ion-chip v-for="(item, index) in storeTypes" :key="index" :outline="!(item === storeTypeSearch)"
@@ -117,7 +117,7 @@ export default defineComponent({
 
         await alert.present();
       } finally {
-        loading.dismiss();
+        await loading.dismiss();
       }
     });
 

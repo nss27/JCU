@@ -10,6 +10,9 @@ import OpenApiListPage from "@/views/OpenApiListPage.vue";
 import CyPlayerMatchesPage from "@/views/CyPlayerMatchesPage.vue";
 import CyItemInfoPage from "@/views/CyItemInfoPage.vue";
 import CyPositionInfoPage from "@/views/CyPositionInfoPage.vue";
+import CyTotalRankingPage from "@/views/CyTotalRankingPage.vue";
+import CyCharacterRankingPage from "@/views/CyCharacterRankingPage.vue";
+import CyPlayerInfoPage from "@/views/CyPlayerInfoPage.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -51,6 +54,18 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/positionInfo/:attributeId",
     component: CyPositionInfoPage,
+  },
+  {
+    path: "/totalRanKing/:searchWord?",
+    component: CyTotalRankingPage,
+  },
+  {
+    path: "/characterRanKing",
+    component: CyCharacterRankingPage,
+  },
+  {
+    path: "/playerInfo/:searchWord?",
+    component: CyPlayerInfoPage,
   },
 ];
 

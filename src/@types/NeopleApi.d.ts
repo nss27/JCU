@@ -1,6 +1,7 @@
 type WordType = "match" | "full";
 type GameTypeId = "rating" | "normal";
 type PositionType = "원거리딜러" | "근거리딜러" | "탱커" | "서포터";
+type RankingType = "winCount" | "winRate" | "killCount" | "assistCount" | "exp";
 
 interface CyPlayerIdReq {
   nickname: string;
@@ -29,4 +30,18 @@ interface CyItemsInfoReq {
 
 interface CyPositionInfoReq {
   attributeId: string;
+}
+
+interface CyTotalRankingReq {
+  playerId?: string;
+  offset?: number;
+  limit?: number;
+}
+
+interface CyCharacterRankingReq {
+  characterId: string;
+  rankingType: RankingType;
+  playerId?: string;
+  offset?: number;
+  limit?: number;
 }

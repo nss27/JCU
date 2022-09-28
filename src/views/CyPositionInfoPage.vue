@@ -1,6 +1,6 @@
 <template>
     <ion-page>
-        <ion-header>
+        <ion-header :translucent="true">
             <ion-toolbar>
                 <ion-buttons slot="start">
                     <ion-back-button></ion-back-button>
@@ -9,7 +9,7 @@
             </ion-toolbar>
         </ion-header>
 
-        <ion-content>
+        <ion-content :fullscreen="true">
             <ion-list v-if="positionInfo" lines="none">
                 <ion-item>
                     <ion-thumbnail slot="start">
@@ -89,7 +89,7 @@ export default defineComponent({
 
                 await alert.present();
             } finally {
-                loading.dismiss();
+                await loading.dismiss();
             }
         })
 

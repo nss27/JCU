@@ -9,7 +9,7 @@
       </ion-toolbar>
     </ion-header>
 
-    <ion-content>
+    <ion-content :fullscreen="true">
       <NoDataVue v-if="Common.isNull(storeInfo)"></NoDataVue>
       <template v-else>
         <KakaoMapVue height="50%" level="3" :center="storeInfo['store-position']" :marker-options="storeMarkerOptions"
@@ -162,7 +162,7 @@ export default defineComponent({
 
         await alert.present();
       } finally {
-        loading.dismiss();
+        await loading.dismiss();
       }
     });
 
