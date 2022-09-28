@@ -196,7 +196,7 @@ export default defineComponent({
     onIonViewWillEnter(async () => {
       if (route.params.searchWord !== searchWord.value) searchWord.value = route.params.searchWord as string;
       if (!Common.isNull(searchWord.value) && Common.isNull(players.value)) playerSearch();
-      if (!Common.isNull(idb)) searchWords.value = await idb.getAll(tableName);
+      if (!Common.isNull(idb?.name)) searchWords.value = await idb.getAll(tableName);
     })
 
     onMounted(async () => {
