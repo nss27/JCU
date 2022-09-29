@@ -2,19 +2,23 @@
   <ion-page>
     <ion-header :translucent="true">
       <ion-toolbar>
-        <ion-buttons>
+        <ion-buttons slot="start">
           <ion-back-button></ion-back-button>
         </ion-buttons>
         <ion-title>{{ storeInfo["store-name"] }}</ion-title>
+        <ion-buttons slot="end">
+          <home-button-vue></home-button-vue>
+        </ion-buttons>
       </ion-toolbar>
     </ion-header>
 
     <ion-content :fullscreen="true">
-      <NoDataVue v-if="Common.isNull(storeInfo)"></NoDataVue>
+      <no-data-vue v-if="Common.isNull(storeInfo)">
+      </no-data-vue>
       <template v-else>
-        <KakaoMapVue height="50%" level="3" :center="storeInfo['store-position']" :marker-options="storeMarkerOptions"
+        <kakao-map-vue height="50%" level="3" :center="storeInfo['store-position']" :marker-options="storeMarkerOptions"
           v-if="storeInfo['store-position']">
-        </KakaoMapVue>
+        </kakao-map-vue>
         <ion-list lines="none">
           <ion-item>
             <ion-label class="ion-text-wrap">
@@ -63,6 +67,7 @@ import { useRoute } from "vue-router";
 import { navigate } from "ionicons/icons";
 import KakaoMapVue from "@/components/KakaoMap.vue";
 import NoDataVue from "@/components/NoData.vue";
+import HomeButtonVue from "@/components/HomeButton.vue";
 
 export default defineComponent({
   components: {
@@ -80,7 +85,8 @@ export default defineComponent({
     IonButton,
     IonIcon,
     KakaoMapVue,
-    NoDataVue
+    NoDataVue,
+    HomeButtonVue
   },
   setup() {
     const route = useRoute();

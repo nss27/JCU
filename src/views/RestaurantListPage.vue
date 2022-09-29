@@ -2,10 +2,13 @@
   <ion-page>
     <ion-header :translucent="true">
       <ion-toolbar>
-        <ion-buttons>
+        <ion-buttons slot="start">
           <ion-back-button></ion-back-button>
         </ion-buttons>
         <ion-title>맛집지도</ion-title>
+        <ion-buttons slot="end">
+          <home-button-vue></home-button-vue>
+        </ion-buttons>
       </ion-toolbar>
       <ion-toolbar>
         <ion-searchbar v-model="sotreSearch" :debounce="250" placeholder="가게명을 입력하세요"></ion-searchbar>
@@ -18,11 +21,11 @@
     </ion-header>
 
     <ion-content :fullscreen="true">
-      <NoDataVue v-if="Common.isNull(showStoreList)"></NoDataVue>
+      <no-data-vue v-if="Common.isNull(showStoreList)"></no-data-vue>
       <template v-else>
-        <StoreCardVue v-for="store in showStoreList" :key="store" :storeInfo="store"
+        <store-cardVue v-for="store in showStoreList" :key="store" :storeInfo="store"
           :router-link="`/restaurant/${store.no}`">
-        </StoreCardVue>
+        </store-cardVue>
       </template>
     </ion-content>
   </ion-page>
@@ -47,6 +50,7 @@ import GoogleApi from "@/utils/GoogleApi";
 import Common from "@/utils/Common";
 import StoreCardVue from "@/components/StoreCard.vue";
 import NoDataVue from "@/components/NoData.vue";
+import HomeButtonVue from "@/components/HomeButton.vue";
 
 export default defineComponent({
   components: {
@@ -60,7 +64,8 @@ export default defineComponent({
     IonBackButton,
     IonChip,
     StoreCardVue,
-    NoDataVue
+    NoDataVue,
+    HomeButtonVue
   },
   setup() {
     const storeList = ref([] as any[]);

@@ -1,16 +1,13 @@
 <template>
   <ion-page>
-    <ion-header :translucent="true">
-      <ion-toolbar>
-        <ion-title>전사연</ion-title>
-      </ion-toolbar>
-    </ion-header>
+    <ion-content>
+      <ion-card v-for="(data, index) in menuList" :key="index" :router-link="data.url">
+        <img v-if="data.img" :src="data.img" class="bg-img">
 
-    <ion-content :fullscreen="true">
-      <ion-card v-for="(data, index) in menu" :key="index" :router-link="data.url">
-        <ion-card-content>
-          <ion-text color="dark">{{data.name}}</ion-text>
-        </ion-card-content>
+        <div class="flex-box">
+          <ion-icon v-if="data.icon" :icon="data.icon" class="menu-icon"></ion-icon>
+          <div class="menu-name">{{data.name}}</div>
+        </div>
       </ion-card>
     </ion-content>
   </ion-page>
@@ -20,80 +17,102 @@
 import {
   IonPage,
   IonContent,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonCard,
-  IonCardContent,
-  IonText
+  IonIcon
 } from "@ionic/vue";
 import { defineComponent } from "vue";
+import {
+  search,
+  mapOutline,
+  colorWandOutline,
+  libraryOutline,
+  ribbonOutline
+} from "ionicons/icons";
 
 export default defineComponent({
   components: {
     IonPage,
     IonContent,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonCard,
-    IonCardContent,
-    IonText
+    IonIcon
   },
   setup() {
-    const menu = [
+    const menuList = [
       {
         url: '/playerInfo',
-        name: '플레이어 검색'
+        name: '플레이어 검색',
+        icon: search,
+        img: 'assets/images/illustration/illustration-01.png',
       },
       {
         url: '/totalRanking',
-        name: '통합랭킹'
+        name: '통합랭킹',
+        icon: ribbonOutline,
+        img: 'assets/images/illustration/illustration-02.png',
       },
       {
         url: '/characterRanKing',
-        name: '캐릭터 랭킹'
+        name: '캐릭터 랭킹',
+        icon: ribbonOutline,
+        img: 'assets/images/illustration/illustration-03.png',
       },
       {
         url: '/charactorLookalike',
-        name: '사이퍼즈 캐릭터상 테스트'
+        name: '캐릭터 닮은꼴',
+        icon: colorWandOutline,
+        img: null,
       },
       {
         url: '/restaurantList',
-        name: '맛집리스트'
+        name: '맛집리스트',
+        icon: mapOutline,
+        img: null,
       },
       {
         url: '/openSourceLicenseList',
-        name: '오픈소스'
+        name: '오픈소스',
+        icon: libraryOutline,
+        img: null,
       },
       {
         url: '/openApiList',
-        name: '오픈 API'
+        name: '오픈 API',
+        icon: libraryOutline,
+        img: null,
       },
     ];
 
     return {
-      menu
+      menuList,
     }
   },
 });
 </script>
 
 <style scoped>
-.search-list {
+.bg-img {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: -1;
+  height: 100%;
+}
+
+.flex-box {
   display: flex;
-  overflow: scroll;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  color: var(--ion-color-dark);
+  height: 100px;
 }
 
-.search-list::-webkit-scrollbar {
-  display: none;
+.menu-icon {
+  font-size: 34px;
 }
 
-.search-list>div {
-  width: fit-content;
-}
-
-.search-list>div>ion-chip {
-  white-space: nowrap;
+.menu-name {
+  font-size: 26px;
+  background-color: var(--background);
 }
 </style>

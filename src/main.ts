@@ -28,3 +28,5 @@ const app = createApp(App).use(IonicVue).use(router);
 router.isReady().then(() => {
   app.mount("#app");
 });
+
+app.config.globalProperties.rootIndex = 0;

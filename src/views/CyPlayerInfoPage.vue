@@ -6,6 +6,9 @@
           <ion-back-button></ion-back-button>
         </ion-buttons>
         <ion-title>플레이어 검색</ion-title>
+        <ion-buttons slot="end">
+          <home-button-vue></home-button-vue>
+        </ion-buttons>
       </ion-toolbar>
       <ion-toolbar>
         <ion-searchbar placeholder="닉네임을 입력하세요" v-model="searchWord" @keypress="enter($event)"></ion-searchbar>
@@ -30,11 +33,11 @@
     <ion-content :fullscreen="true">
       <swiper :modules="modules" :pagination="true">
         <swiper-slide v-if="Common.isNull(players)">
-          <NoDataVue></NoDataVue>
+          <no-data-vue></no-data-vue>
         </swiper-slide>
         <template v-else>
           <swiper-slide v-for="(data, index) in players" :key="index">
-            <PlayerInfoVue :player-id="data.playerId" :player-nickname="data.playerNickname"></PlayerInfoVue>
+            <player-info-vue :player-id="data.playerId" :player-nickname="data.playerNickname"></player-info-vue>
           </swiper-slide>
         </template>
       </swiper>
@@ -73,6 +76,7 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import '@ionic/vue/css/ionic-swiper.css';
 import { useRoute, useRouter } from "vue-router";
+import HomeButtonVue from "@/components/HomeButton.vue";
 
 export default defineComponent({
   components: {
@@ -91,7 +95,8 @@ export default defineComponent({
     NoDataVue,
     PlayerInfoVue,
     Swiper,
-    SwiperSlide
+    SwiperSlide,
+    HomeButtonVue
   },
   setup() {
     const route = useRoute();

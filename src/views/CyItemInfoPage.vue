@@ -6,6 +6,9 @@
                     <ion-back-button></ion-back-button>
                 </ion-buttons>
                 <ion-title>아이템정보</ion-title>
+                <ion-buttons slot="end">
+                    <home-button-vue></home-button-vue>
+                </ion-buttons>
             </ion-toolbar>
         </ion-header>
 
@@ -51,6 +54,7 @@ import {
 } from '@ionic/vue';
 import NeopleApi from '@/utils/NeopleApi';
 import { useRoute } from 'vue-router';
+import HomeButtonVue from '@/components/HomeButton.vue';
 
 export default defineComponent({
     components: {
@@ -65,7 +69,8 @@ export default defineComponent({
         IonLabel,
         IonThumbnail,
         IonTitle,
-        IonBackButton
+        IonBackButton,
+        HomeButtonVue
     },
     setup() {
         const route = useRoute();

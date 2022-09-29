@@ -2,10 +2,13 @@
   <ion-page>
     <ion-header :translucent="true">
       <ion-toolbar>
-        <ion-buttons>
+        <ion-buttons slot="start">
           <ion-back-button></ion-back-button>
         </ion-buttons>
         <ion-title>경기결과</ion-title>
+        <ion-buttons slot="end">
+          <home-button-vue></home-button-vue>
+        </ion-buttons>
       </ion-toolbar>
     </ion-header>
 
@@ -162,7 +165,7 @@
           </ion-item>
         </template>
       </ion-list>
-      <NoDataVue v-else></NoDataVue>
+      <no-data-vue v-else></no-data-vue>
     </ion-content>
   </ion-page>
 </template>
@@ -194,6 +197,7 @@ import NeopleApi from "@/utils/NeopleApi";
 import { useRoute, useRouter } from "vue-router";
 import Common from "@/utils/Common";
 import NoDataVue from "@/components/NoData.vue";
+import HomeButtonVue from "@/components/HomeButton.vue";
 
 export default defineComponent({
   components: {
@@ -214,7 +218,8 @@ export default defineComponent({
     IonCol,
     IonThumbnail,
     IonText,
-    NoDataVue
+    NoDataVue,
+    HomeButtonVue
   },
   setup() {
     const route = useRoute();

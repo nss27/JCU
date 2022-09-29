@@ -57,7 +57,7 @@
                 </ion-grid>
             </ion-item>
             <ion-item v-else>
-                <NoDataVue text="배치고사중"></NoDataVue>
+                <no-data-vue text="배치고사중"></no-data-vue>
             </ion-item>
             <ion-list-header>
                 <ion-label>
@@ -75,7 +75,7 @@
                 </ion-segment>
             </ion-item>
             <ion-item v-if="Common.isNull(matches)">
-                <NoDataVue text="매칭기록이 존재하지 않습니다"></NoDataVue>
+                <no-data-vue text="매칭기록이 존재하지 않습니다"></no-data-vue>
             </ion-item>
             <template v-else>
                 <ion-item v-for="(gameInfo, index) in matches" :key="index" button
@@ -102,7 +102,7 @@
             더보기
         </ion-button>
     </ion-content>
-    <NoDataVue text="플레이어 정보 준비중" v-else></NoDataVue>
+    <no-data-vue text="플레이어 정보 준비중" v-else></no-data-vue>
 </template>
 
 <script lang="ts">

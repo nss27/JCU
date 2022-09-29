@@ -1,0 +1,182 @@
+[
+  {
+    "code": "API000",
+    "status": 401,
+    "statusText": "API Key 미입력"
+  },
+  {
+    "code": "API001",
+    "status": 404,
+    "statusText": "유효하지 않은 게임아이디"
+  },
+  {
+    "code": "API002",
+    "status": 400,
+    "statusText": "API Key 사용량 초과"
+  },
+  {
+    "code": "API003",
+    "status": 401,
+    "statusText": "유효하지 않은 API Key"
+  },
+  {
+    "code": "API004",
+    "status": 401,
+    "statusText": "차단된 API Key"
+  },
+  {
+    "code": "API005",
+    "status": 401,
+    "statusText": "해당 게임으로 발급되지 않은 API Key"
+  },
+  {
+    "code": "API006",
+    "status": 400,
+    "statusText": "유효하지 않은 HTTP 헤더 요청 [FAQ 참고]"
+  },
+  {
+    "code": "API007",
+    "status": 400,
+    "statusText": "클라이언트 소켓 통신 오류"
+  },
+  {
+    "code": "API900",
+    "status": 404,
+    "statusText": "유효하지 않은 URL"
+  },
+  {
+    "code": "API901",
+    "status": 400,
+    "statusText": "유효하지 않은 요청 파라미터"
+  },
+  {
+    "code": "API999",
+    "status": 500,
+    "statusText": "시스템 오류"
+  },
+  {
+    "code": "DNF000",
+    "status": 404,
+    "statusText": "유효하지 않은 서버아이디"
+  },
+  {
+    "code": "DNF001",
+    "status": 404,
+    "statusText": "유효하지 않은 캐릭터 정보"
+  },
+  {
+    "code": "DNF003",
+    "status": 404,
+    "statusText": "유효하지 않은 아이템 정보"
+  },
+  {
+    "code": "DNF004",
+    "status": 404,
+    "statusText": "유효하지 않은 경매장 및 아바타마켓 상품 정보"
+  },
+  {
+    "code": "DNF005",
+    "status": 404,
+    "statusText": "유효하지 않은 스킬 정보"
+  },
+  {
+    "code": "DNF006",
+    "status": 400,
+    "statusText": "타임라인 검색 시간 파라미터 오류"
+  },
+  {
+    "code": "DNF007",
+    "status": 400,
+    "statusText": "경매장 아이템 검색 갯수 제한"
+  },
+  {
+    "code": "DNF008",
+    "status": 400,
+    "statusText": "다중 아이템 검색 갯수 제한"
+  },
+  {
+    "code": "DNF009",
+    "status": 400,
+    "statusText": "아바타 마켓 타이틀 검색 갯수 제한"
+  },
+  {
+    "code": "DNF900",
+    "status": 404,
+    "statusText": "유효하지 않은 URL"
+  },
+  {
+    "code": "DNF901",
+    "status": 400,
+    "statusText": "유효하지 않은 요청 파라미터"
+  },
+  {
+    "code": "DNF980",
+    "status": 503,
+    "statusText": "시스템 점검"
+  },
+  {
+    "code": "DNF999",
+    "status": 500,
+    "statusText": "시스템 오류"
+  },
+  {
+    "code": "CY001",
+    "status": 400,
+    "statusText": "매칭 검색 시간 파라미터 오류"
+  },
+  {
+    "code": "CY002",
+    "status": 404,
+    "statusText": "유효하지 않은 플레이어 정보"
+  },
+  {
+    "code": "CY003",
+    "status": 404,
+    "statusText": "유효하지 않은 매칭 정보"
+  },
+  {
+    "code": "CY004",
+    "status": 404,
+    "statusText": "유효하지 않은 아이템 정보"
+  },
+  {
+    "code": "CY005",
+    "status": 404,
+    "statusText": "유효하지 않은 포지션 특성 정보"
+  },
+  {
+    "code": "CY006",
+    "status": 400,
+    "statusText": "다중 아이템 검색 갯수 제한"
+  },
+  {
+    "code": "CY007",
+    "status": 404,
+    "statusText": "유효하지 않은 투신전 타입"
+  },
+  {
+    "code": "CY008",
+    "status": 404,
+    "statusText": "유효하지 않은 랭킹 타입"
+  },
+  {
+    "code": "CY900",
+    "status": 404,
+    "statusText": "유효하지 않은 URL"
+  },
+  {
+    "code": "CY901",
+    "status": 400,
+    "statusText": "유효하지 않은 요청 파라미터"
+  },
+  {
+    "code": "CY980",
+    "status": 503,
+    "statusText": "시스템 점검"
+  },
+  {
+    "code": "CY999",
+    "status": 500,
+    "statusText": "시스템 오류"
+  }
+]

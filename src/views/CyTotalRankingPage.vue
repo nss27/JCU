@@ -7,12 +7,15 @@
                 </ion-buttons>
                 <ion-title>통합랭킹</ion-title>
                 <ion-buttons slot="end">
+                    <home-button-vue></home-button-vue>
+                </ion-buttons>
+            </ion-toolbar>
+            <ion-toolbar>
+                <ion-buttons slot="start">
                     <ion-button @click="getRanking(true)">
                         <ion-icon slot="icon-only" :icon="refresh"></ion-icon>
                     </ion-button>
                 </ion-buttons>
-            </ion-toolbar>
-            <ion-toolbar>
                 <ion-searchbar placeholder="닉네임을 입력하세요" v-model="searchWord" @keypress="enter($event)"></ion-searchbar>
                 <ion-buttons slot="end">
                     <ion-button @click="searchBtnClick()">
@@ -23,7 +26,7 @@
         </ion-header>
 
         <ion-content :fullscreen="true">
-            <NoDataVue v-if="Common.isNull(list)"></NoDataVue>
+            <no-data-vue v-if="Common.isNull(list)"></no-data-vue>
             <template v-else>
                 <ion-list>
                     <ion-item v-for="(data, index) in list" :key="index"
@@ -71,6 +74,7 @@ import NeopleApi from '@/utils/NeopleApi';
 import Common from '@/utils/Common';
 import NoDataVue from '@/components/NoData.vue';
 import { useRoute, useRouter } from 'vue-router';
+import HomeButtonVue from '@/components/HomeButton.vue';
 
 export default defineComponent({
     components: {
@@ -89,7 +93,8 @@ export default defineComponent({
         IonIcon,
         IonSearchbar,
         IonButton,
-        NoDataVue
+        NoDataVue,
+        HomeButtonVue
     },
     setup() {
         const route = useRoute();

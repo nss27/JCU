@@ -6,11 +6,14 @@
                     <ion-back-button></ion-back-button>
                 </ion-buttons>
                 <ion-title>캐릭터 랭킹</ion-title>
+                <ion-buttons slot="end">
+                    <home-button-vue></home-button-vue>
+                </ion-buttons>
             </ion-toolbar>
         </ion-header>
 
         <ion-content :fullscreen="true">
-            <NoDataVue text="서비스 준비중..."></NoDataVue>
+            <no-data-vue text="서비스 준비중..."></no-data-vue>
         </ion-content>
     </ion-page>
 </template>
@@ -27,6 +30,7 @@ import {
     IonTitle,
 } from '@ionic/vue';
 import NoDataVue from '@/components/NoData.vue';
+import HomeButtonVue from '@/components/HomeButton.vue';
 
 export default defineComponent({
     components: {
@@ -37,7 +41,8 @@ export default defineComponent({
         IonButtons,
         IonBackButton,
         IonTitle,
-        NoDataVue
+        NoDataVue,
+        HomeButtonVue
     },
     // setup() {
 

@@ -2,10 +2,13 @@
     <ion-page>
         <ion-header :translucent="true">
             <ion-toolbar>
-                <ion-buttons>
+                <ion-buttons slot="start">
                     <ion-back-button></ion-back-button>
                 </ion-buttons>
                 <ion-title>{{ license.libraryName }}</ion-title>
+                <ion-buttons slot="end">
+                    <home-button-vue></home-button-vue>
+                </ion-buttons>
             </ion-toolbar>
         </ion-header>
 
@@ -28,6 +31,7 @@ import {
 } from '@ionic/vue'
 import OpenSourceLicense from '@/jsons/openSourceLicense.json'
 import { useRoute } from 'vue-router'
+import HomeButtonVue from '@/components/HomeButton.vue'
 
 export default defineComponent({
     components: {
@@ -38,6 +42,7 @@ export default defineComponent({
         IonTitle,
         IonButtons,
         IonBackButton,
+        HomeButtonVue
     },
     setup() {
         const route = useRoute();

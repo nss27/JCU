@@ -2,10 +2,13 @@
     <ion-page>
         <ion-header :translucent="true">
             <ion-toolbar>
-                <ion-buttons>
+                <ion-buttons slot="start">
                     <ion-back-button></ion-back-button>
                 </ion-buttons>
                 <ion-title>open api list</ion-title>
+                <ion-buttons slot="end">
+                    <home-button-vue></home-button-vue>
+                </ion-buttons>
             </ion-toolbar>
         </ion-header>
 
@@ -62,6 +65,7 @@ import {
     IonText
 } from '@ionic/vue'
 import OpenApi from '@/jsons/openApi.json'
+import HomeButtonVue from '@/components/HomeButton.vue'
 
 export default defineComponent({
     components: {
@@ -77,7 +81,8 @@ export default defineComponent({
         IonCol,
         IonButton,
         IonCard,
-        IonText
+        IonText,
+        HomeButtonVue
     },
     setup() {
         const openApis = ref(OpenApi);
