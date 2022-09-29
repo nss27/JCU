@@ -19,7 +19,11 @@
                         <img :src="`${NeopleApi.cyitemsUrl}/${itemInfo.itemId}`">
                     </ion-thumbnail>
                     <ion-label>
-                        <h1 class="ion-no-margin">{{itemInfo.itemName}}</h1>
+                        <h1 class="ion-no-margin">
+                            <strong>
+                                <ion-text :color="itemInfo.itemColor">{{itemInfo.itemName}}</ion-text>
+                            </strong>
+                        </h1>
                         <p class="ion-no-margin">{{itemInfo.slotName}}</p>
                     </ion-label>
                 </ion-item>
@@ -92,6 +96,30 @@ export default defineComponent({
             detail.value = !detail.value;
         }
 
+        const getItemColor = (rarityName: '커먼' | '언커먼' | '레어' | '유니크') => {
+            let color = '';
+
+            switch (rarityName) {
+                case '유니크':
+                    color = 'unique';
+                    break;
+
+                case '레어':
+                    color = 'rare';
+                    break;
+
+                case '언커먼':
+                    color = 'primary';
+                    break;
+
+                default:
+                    color = 'dark';
+                    break;
+            }
+
+            return color;
+        }
+
         onMounted(async () => {
             const loading = await loadingController.create({
                 message: "데이터 조회중",
@@ -102,6 +130,7 @@ export default defineComponent({
 
             try {
                 itemInfo.value = await NeopleApi.cyItemsInfo({ itemId: itemId });
+                itemInfo.value.itemColor = getItemColor(itemInfo.value.rarityName);
             } catch (error) {
                 const alert = await alertController.create({
                     header: "오류 발생",

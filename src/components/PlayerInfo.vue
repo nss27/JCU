@@ -348,12 +348,16 @@ ion-thumbnail {
     position: relative;
 }
 
+ion-thumbnail>img {
+    width: 100% !important;
+}
+
 .position-icon {
     --size: 36px;
 
     position: absolute;
-    width: var(--size);
-    height: var(--size);
+    width: var(--size) !important;
+    height: var(--size) !important;
     bottom: -10px;
     right: -16px;
 }
