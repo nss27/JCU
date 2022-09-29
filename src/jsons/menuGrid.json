@@ -1,0 +1,30 @@
+[
+  [
+    {
+      "url": "/totalRanking",
+      "name": "통합랭킹",
+      "img": "assets/images/illustration/illustration-02.png",
+      "content": "나의 순의는 몇위?"
+    },
+    {
+      "url": "/characterRanKing",
+      "name": "캐릭터 랭킹",
+      "img": "assets/images/illustration/illustration-03.png",
+      "content": "캐릭터별 1위는 과연 누구?"
+    }
+  ],
+  [
+    {
+      "url": "/charactorLookalike",
+      "name": "캐릭터 닮은꼴",
+      "img": "assets/images/illustration/illustration-06.png",
+      "content": "나와 닮은 캐릭터는?"
+    },
+    {
+      "url": "/restaurantList",
+      "name": "맛집리스트",
+      "img": "assets/images/illustration/illustration-04.png",
+      "content": "전주 맛집이 어디지?"
+    }
+  ]
+]

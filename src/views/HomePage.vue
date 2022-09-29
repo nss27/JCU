@@ -2,10 +2,17 @@
   <ion-page>
     <ion-header :translucent="true">
       <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-menu-button></ion-menu-button>
+        </ion-buttons>
         <ion-title>JCU</ion-title>
       </ion-toolbar>
       <ion-toolbar>
-        <ion-searchbar placeholder="닉네임을 입력하세요" v-model="searchWord" @keypress="enter($event)"></ion-searchbar>
+        <ion-searchbar
+          placeholder="닉네임을 입력하세요"
+          v-model="searchWord"
+          @keypress="enter($event)"
+        ></ion-searchbar>
         <ion-buttons slot="end">
           <ion-button @click="searchBtnClick()">
             <ion-icon slot="icon-only" :icon="search"></ion-icon>
@@ -16,22 +23,51 @@
         <div class="search-list">
           <div v-for="(row, index) in searchWords" :key="index">
             <ion-chip @click="searchWordsClick(row.word)">
-              <ion-label>{{row.word}}</ion-label>
-              <ion-icon :icon="close" @click.stop="searchWordsDelete(row.date)"></ion-icon>
+              <ion-label>{{ row.word }}</ion-label>
+              <ion-icon
+                :icon="close"
+                @click.stop="searchWordsDelete(row.date)"
+              ></ion-icon>
             </ion-chip>
           </div>
         </div>
       </ion-toolbar>
     </ion-header>
 
-    <ion-content :fullscreen="true">
-      <ion-card v-for="(data, index) in menuList" :key="index" :router-link="data.url">
-        <div class="flex-box">
-          <div class="menu-name">{{data.name}}</div>
-          <img v-if="data.img" :src="data.img" class="menu-img">
-        </div>
-      </ion-card>
+    <ion-content :fullscreen="true" id="main">
+      <ion-grid>
+        <ion-row v-for="(row, index) in menuGrid" :key="index">
+          <ion-col v-for="(data, index) in row" :key="index">
+            <ion-card
+              :router-link="data.url"
+              class="ion-no-margin"
+              style="height: 100%"
+            >
+              <img :src="data.img" />
+              <ion-card-header>
+                <ion-card-title style="font-size: 18px">{{
+                  data.name
+                }}</ion-card-title>
+              </ion-card-header>
+              <ion-card-content>{{ data.content }}</ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </ion-content>
+
+    <ion-menu content-id="main" menu-id="mainMenu">
+      <ion-content>
+        <ion-list>
+          <ion-item router-link="/openSourceLicenseList" button>
+            <ion-label>오픈소스</ion-label>
+          </ion-item>
+          <ion-item router-link="/openApiList" button>
+            <ion-label>오픈 API</ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-content>
+    </ion-menu>
   </ion-page>
 </template>
 
@@ -49,16 +85,27 @@ import {
   IonTitle,
   IonChip,
   IonLabel,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonMenuButton,
+  IonMenu,
+  IonList,
+  IonItem,
   alertController,
   onIonViewDidLeave,
-  onIonViewWillEnter
+  onIonViewWillEnter,
+  menuController,
 } from "@ionic/vue";
 import { defineComponent, onMounted, ref, watch } from "vue";
-import menuList from '@/jsons/menuList.json';
 import { search, close } from "ionicons/icons";
 import Common from "@/utils/Common";
 import { useRouter } from "vue-router";
-import { IDBPDatabase, openDB } from 'idb';
+import { IDBPDatabase, openDB } from "idb";
+import menuGrid from "@/jsons/menuGrid.json";
 
 export default defineComponent({
   components: {
@@ -74,19 +121,29 @@ export default defineComponent({
     IonTitle,
     IonChip,
     IonLabel,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonMenuButton,
+    IonMenu,
+    IonList,
+    IonItem,
   },
   setup() {
     const router = useRouter();
     let idb: IDBPDatabase<unknown>;
 
-    const searchWord = ref('');
+    const searchWord = ref("");
     const searchWords = ref();
-    const tableName = 'search-words';
+    const tableName = "search-words";
 
     const movePage = async (word: string) => {
       if (Common.isNull(word)) {
         const alert = await alertController.create({
-          message: '닉네임을 입력 후 다시 시도해주세요',
+          message: "닉네임을 입력 후 다시 시도해주세요",
           buttons: ["OK"],
           mode: "ios",
         });
@@ -94,10 +151,10 @@ export default defineComponent({
         await alert.present();
       } else {
         router.push({
-          path: `/playerInfo/${encodeURI(word)}`
+          path: `/playerInfo/${encodeURI(word)}`,
         });
       }
-    }
+    };
 
     const enter = (e: KeyboardEvent) => {
       if (e.key === "Enter") {
@@ -121,19 +178,21 @@ export default defineComponent({
     };
 
     watch(searchWords, () => {
-      (searchWords.value as any[]).sort((a, b) => b.date - a.date)
-    })
+      (searchWords.value as any[]).sort((a, b) => b.date - a.date);
+    });
 
     onIonViewWillEnter(async () => {
-      if (!Common.isNull(idb?.name)) searchWords.value = await idb.getAll(tableName);
-    })
+      if (!Common.isNull(idb?.name))
+        searchWords.value = await idb.getAll(tableName);
+    });
 
     onIonViewDidLeave(() => {
-      searchWord.value = '';
-    })
+      searchWord.value = "";
+      menuController.close("mainMenu");
+    });
 
     onMounted(async () => {
-      idb = await openDB('jcu', 1, {
+      idb = await openDB("jcu", 1, {
         upgrade(db) {
           if (!db.objectStoreNames.contains(tableName)) {
             db.createObjectStore(tableName);
@@ -142,42 +201,25 @@ export default defineComponent({
       });
 
       searchWords.value = await idb.getAll(tableName);
-    })
+    });
 
     return {
       Common,
-      menuList,
       search,
       close,
       searchWord,
       searchWords,
+      menuGrid,
       enter,
       searchBtnClick,
       searchWordsClick,
-      searchWordsDelete
-    }
+      searchWordsDelete,
+    };
   },
 });
 </script>
 
 <style scoped>
-.flex-box {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: var(--ion-color-dark);
-  height: 100px;
-}
-
-.menu-img {
-  height: 100%;
-}
-
-.menu-name {
-  font-size: 26px;
-  padding: 0 20px;
-}
-
 .search-list {
   display: flex;
   overflow: scroll;
@@ -187,11 +229,11 @@ export default defineComponent({
   display: none;
 }
 
-.search-list>div {
+.search-list > div {
   width: fit-content;
 }
 
-.search-list>div>ion-chip {
+.search-list > div > ion-chip {
   white-space: nowrap;
 }
 </style>
