@@ -1,10 +1,5 @@
 [
   {
-    "url": "/playerInfo",
-    "name": "플레이어 검색",
-    "img": "assets/images/illustration/illustration-01.png"
-  },
-  {
     "url": "/totalRanking",
     "name": "통합랭킹",
     "img": "assets/images/illustration/illustration-02.png"
@@ -23,15 +18,5 @@
     "url": "/restaurantList",
     "name": "맛집리스트",
     "img": "assets/images/illustration/illustration-04.png"
-  },
-  {
-    "url": "/openSourceLicenseList",
-    "name": "오픈소스",
-    "img": null
-  },
-  {
-    "url": "/openApiList",
-    "name": "오픈 API",
-    "img": null
   }
 ]
