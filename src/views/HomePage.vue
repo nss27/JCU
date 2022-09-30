@@ -8,11 +8,7 @@
         <ion-title>JCU</ion-title>
       </ion-toolbar>
       <ion-toolbar>
-        <ion-searchbar
-          placeholder="닉네임을 입력하세요"
-          v-model="searchWord"
-          @keypress="enter($event)"
-        ></ion-searchbar>
+        <ion-searchbar placeholder="닉네임을 입력하세요" v-model="searchWord" @keypress.enter="enter()"></ion-searchbar>
         <ion-buttons slot="end">
           <ion-button @click="searchBtnClick()">
             <ion-icon slot="icon-only" :icon="search"></ion-icon>
@@ -24,10 +20,7 @@
           <div v-for="(row, index) in searchWords" :key="index">
             <ion-chip @click="searchWordsClick(row.word)">
               <ion-label>{{ row.word }}</ion-label>
-              <ion-icon
-                :icon="close"
-                @click.stop="searchWordsDelete(row.date)"
-              ></ion-icon>
+              <ion-icon :icon="close" @click.stop="searchWordsDelete(row.date)"></ion-icon>
             </ion-chip>
           </div>
         </div>
@@ -38,16 +31,18 @@
       <ion-grid>
         <ion-row v-for="(row, index) in menuGrid" :key="index">
           <ion-col v-for="(data, index) in row" :key="index">
-            <ion-card
-              :router-link="data.url"
-              class="ion-no-margin"
-              style="height: 100%"
-            >
+            <ion-card v-if="data.url" :router-link="data.url" class="ion-no-margin menu-card">
               <img :src="data.img" />
               <ion-card-header>
-                <ion-card-title style="font-size: 18px">{{
-                  data.name
-                }}</ion-card-title>
+                <ion-card-title class="menu-name">{{data.name}}</ion-card-title>
+              </ion-card-header>
+              <ion-card-content>{{ data.content }}</ion-card-content>
+            </ion-card>
+
+            <ion-card v-else class="ion-no-margin menu-card">
+              <img :src="data.img" />
+              <ion-card-header>
+                <ion-card-title class="menu-name">{{data.name}}</ion-card-title>
               </ion-card-header>
               <ion-card-content>{{ data.content }}</ion-card-content>
             </ion-card>
@@ -105,7 +100,7 @@ import { search, close } from "ionicons/icons";
 import Common from "@/utils/Common";
 import { useRouter } from "vue-router";
 import { IDBPDatabase, openDB } from "idb";
-import menuGrid from "@/jsons/menuGrid.json";
+import menuList from "@/jsons/menuList.json";
 
 export default defineComponent({
   components: {
@@ -140,6 +135,17 @@ export default defineComponent({
     const searchWords = ref();
     const tableName = "search-words";
 
+    const menuGrid: any[] = [];
+    let row: any[] = [];
+
+    menuList.forEach((data, i) => {
+      row.push(data);
+      if ((i + 1) % 2 === 0) {
+        menuGrid.push(row);
+        row = [];
+      }
+    });
+
     const movePage = async (word: string) => {
       if (Common.isNull(word)) {
         const alert = await alertController.create({
@@ -156,12 +162,10 @@ export default defineComponent({
       }
     };
 
-    const enter = (e: KeyboardEvent) => {
-      if (e.key === "Enter") {
-        setTimeout(() => {
-          movePage(searchWord.value);
-        }, 250);
-      }
+    const enter = () => {
+      setTimeout(() => {
+        movePage(searchWord.value);
+      }, 250);
     };
 
     const searchBtnClick = () => {
@@ -229,11 +233,19 @@ export default defineComponent({
   display: none;
 }
 
-.search-list > div {
+.search-list>div {
   width: fit-content;
 }
 
-.search-list > div > ion-chip {
+.search-list>div>ion-chip {
   white-space: nowrap;
+}
+
+.menu-card {
+  height: 100%;
+}
+
+.menu-name {
+  font-size: 18px;
 }
 </style>

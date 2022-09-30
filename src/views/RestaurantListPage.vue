@@ -14,9 +14,8 @@
         <ion-searchbar v-model="sotreSearch" :debounce="250" placeholder="가게명을 입력하세요"></ion-searchbar>
       </ion-toolbar>
       <ion-toolbar>
-        <ion-chip v-for="(item, index) in storeTypes" :key="index" :outline="!(item === storeTypeSearch)"
-          @click="() => (storeTypeSearch = item)">{{ item }}
-        </ion-chip>
+        <ion-chip v-for="(data, index) in storeTypes" :key="index" :color="data.color"
+          @click="storeTypeClick(data.text)">{{ data.text }}</ion-chip>
       </ion-toolbar>
     </ion-header>
 
@@ -69,11 +68,30 @@ export default defineComponent({
   },
   setup() {
     const storeList = ref([] as any[]);
-    const storeTypes = ["전체", "음식점", "카페"];
+    const storeTypes = ref([
+      {
+        text: "전체",
+        color: ''
+      },
+      {
+        text: "음식점",
+        color: 'medium'
+      },
+      {
+        text: "카페",
+        color: 'medium'
+      },
+    ]);
     const storeTypeSearch = ref("전체");
     const sotreSearch = ref("");
 
-    const searchWordChange = () => {
+    const storeTypeClick = (type: string) => {
+      storeTypeSearch.value = type;
+    }
+
+    const showStoreList = computed(() => storeList.value.filter((store) => store.show));
+
+    const storeListChange = () => {
       storeList.value.map((store) => {
         const storeName = store["store-name"] as string;
         const storeType = store["store-type"] as string;
@@ -84,22 +102,24 @@ export default defineComponent({
             break;
 
           default:
-            store.show =
-              storeName.includes(sotreSearch.value) &&
-              storeType.includes(storeTypeSearch.value);
+            store.show = storeName.includes(sotreSearch.value) && storeType.includes(storeTypeSearch.value);
             break;
         }
 
         return store;
       });
-    };
+    }
 
-    const showStoreList = computed(() =>
-      storeList.value.filter((store) => store.show)
-    );
+    watch(sotreSearch, storeListChange);
 
-    watch(sotreSearch, searchWordChange);
-    watch(storeTypeSearch, searchWordChange);
+    watch(storeTypeSearch, () => {
+      storeTypes.value.map(data => {
+        data.color = data.text === storeTypeSearch.value ? '' : 'medium';
+        return data;
+      });
+
+      storeListChange();
+    });
 
     onMounted(async () => {
       const loading = await loadingController.create({
@@ -127,11 +147,12 @@ export default defineComponent({
     });
 
     return {
+      Common,
       storeTypes,
       storeTypeSearch,
       sotreSearch,
-      Common,
       showStoreList,
+      storeTypeClick
     };
   },
 });

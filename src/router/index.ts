@@ -13,6 +13,8 @@ import CyPositionInfoPage from "@/views/CyPositionInfoPage.vue";
 import CyTotalRankingPage from "@/views/CyTotalRankingPage.vue";
 import CyCharacterRankingPage from "@/views/CyCharacterRankingPage.vue";
 import CyPlayerInfoPage from "@/views/CyPlayerInfoPage.vue";
+import CyTsjRankingPage from "@/views/CyTsjRankingPage.vue";
+import CyItemSearchPage from "@/views/CyItemSearchPage.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -60,12 +62,20 @@ const routes: Array<RouteRecordRaw> = [
     component: CyTotalRankingPage,
   },
   {
-    path: "/characterRanKing",
+    path: "/characterRanKing/:searchWord?/:characterId?/:rankingType?",
     component: CyCharacterRankingPage,
   },
   {
     path: "/playerInfo/:searchWord?",
     component: CyPlayerInfoPage,
+  },
+  {
+    path: "/tsjRanking/:searchWord?",
+    component: CyTsjRankingPage,
+  },
+  {
+    path: "/itemSearch/:searchWord?",
+    component: CyItemSearchPage,
   },
 ];
 

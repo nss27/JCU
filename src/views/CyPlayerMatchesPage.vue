@@ -69,13 +69,13 @@
                   <ion-text color="medium">공격량</ion-text>
                 </ion-col>
                 <ion-col>
-                  {{ commaFormat(player.playInfo.attackPoint) }}
+                  {{ Common.commaFormat(player.playInfo.attackPoint) }}
                 </ion-col>
                 <ion-col>
                   <ion-text color="medium">피해량</ion-text>
                 </ion-col>
                 <ion-col>
-                  {{ commaFormat(player.playInfo.damagePoint) }}
+                  {{ Common.commaFormat(player.playInfo.damagePoint) }}
                 </ion-col>
               </ion-row>
 
@@ -99,13 +99,13 @@
                   <ion-text color="medium">힐량</ion-text>
                 </ion-col>
                 <ion-col>
-                  {{ commaFormat(player.playInfo.healAmount) }}
+                  {{ Common.commaFormat(player.playInfo.healAmount) }}
                 </ion-col>
                 <ion-col>
                   <ion-text color="medium">타워공격</ion-text>
                 </ion-col>
                 <ion-col>
-                  {{ commaFormat(player.playInfo.towerAttackPoint) }}
+                  {{ Common.commaFormat(player.playInfo.towerAttackPoint) }}
                 </ion-col>
               </ion-row>
 
@@ -114,13 +114,13 @@
                   <ion-text color="medium">획득코인</ion-text>
                 </ion-col>
                 <ion-col>
-                  {{ commaFormat(player.playInfo.getCoin) }}
+                  {{ Common.commaFormat(player.playInfo.getCoin) }}
                 </ion-col>
                 <ion-col>
                   <ion-text color="medium">도핑코인</ion-text>
                 </ion-col>
                 <ion-col>
-                  {{ commaFormat(player.playInfo.spendConsumablesCoin) }}
+                  {{ Common.commaFormat(player.playInfo.spendConsumablesCoin) }}
                 </ion-col>
               </ion-row>
 
@@ -374,12 +374,6 @@ export default defineComponent({
       });
     }
 
-    const commaFormat = (data: string | number) => {
-      let list = String(data).split('');
-      if (list.length > 3) list = list.reverse().map((val, i) => (i + 1) % 3 === 0 ? `,${val}` : val).reverse();
-      return list.join('');
-    };
-
     const moveToId = (playerId: string) => {
       router.replace({
         hash: `#${playerId}`
@@ -418,7 +412,6 @@ export default defineComponent({
       players,
       getItemInfo,
       getPositionInfo,
-      commaFormat,
       moveToId
     };
   },

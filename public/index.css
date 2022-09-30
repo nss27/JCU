@@ -11,6 +11,13 @@
   height: 100% !important;
 }
 
+.swiper-pagination {
+  transform: translate3d(-50%, -4px, 0) !important;
+  left: 50% !important;
+  width: fit-content !important;
+  display: flex;
+}
+
 .swiper-pagination-bullet {
   opacity: 1 !important;
   background: var(--ion-color-dark) !important;

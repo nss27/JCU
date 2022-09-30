@@ -16,7 +16,7 @@
                         <ion-icon slot="icon-only" :icon="refresh"></ion-icon>
                     </ion-button>
                 </ion-buttons>
-                <ion-searchbar placeholder="닉네임을 입력하세요" v-model="searchWord" @keypress="enter($event)"></ion-searchbar>
+                <ion-searchbar placeholder="닉네임을 입력하세요" v-model="searchWord" @keypress.enter="enter()"></ion-searchbar>
                 <ion-buttons slot="end">
                     <ion-button @click="searchBtnClick()">
                         <ion-icon slot="icon-only" :icon="search"></ion-icon>
@@ -208,12 +208,10 @@ export default defineComponent({
             }
         }
 
-        const enter = (e: KeyboardEvent) => {
-            if (e.key === "Enter") {
-                setTimeout(() => {
-                    movePage(searchWord.value);
-                }, 250);
-            }
+        const enter = () => {
+            setTimeout(() => {
+                movePage(searchWord.value);
+            }, 250);
         };
 
         const searchBtnClick = () => {

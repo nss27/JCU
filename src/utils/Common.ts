@@ -65,4 +65,19 @@ export default class Common {
           o.nodeType === 1 &&
           typeof o.nodeName === "string";
   }
+
+  /**
+   * 숫자 콤마 표시
+   * @param data
+   * @returns
+   */
+  static commaFormat(data: string | number) {
+    let list = String(data).split("");
+    if (list.length > 3)
+      list = list
+        .reverse()
+        .map((val, i) => ((i + 1) % 3 === 0 ? `,${val}` : val))
+        .reverse();
+    return list.join("");
+  }
 }

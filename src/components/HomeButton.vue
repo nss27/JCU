@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import { ComponentInternalInstance, defineComponent, getCurrentInstance } from 'vue'
+import { defineComponent, inject } from 'vue'
 import {
     IonButton,
     IonIcon
@@ -20,10 +20,10 @@ export default defineComponent({
     },
     setup() {
         const router = useRouter();
-        const app = getCurrentInstance() as ComponentInternalInstance;
+        const rootIndex = inject<number>('rootIndex');
 
         const goHome = () => {
-            const index = router.options.history.state.position as number - app.appContext.config.globalProperties.rootIndex;
+            const index = (router.options.history.state.position as number) - (rootIndex as number);
             router.go(index * -1);
         };
 

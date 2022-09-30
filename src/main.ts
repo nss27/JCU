@@ -23,10 +23,12 @@ import "@ionic/vue/css/display.css";
 /* Theme variables */
 import "./theme/variables.css";
 
+import Global from "@/utils/Global";
+
 const app = createApp(App).use(IonicVue).use(router);
 
 router.isReady().then(() => {
   app.mount("#app");
 });
 
-app.config.globalProperties.rootIndex = 0;
+app.use(Global);
