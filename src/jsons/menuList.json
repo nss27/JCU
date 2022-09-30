@@ -14,13 +14,13 @@
   {
     "url": "/tsjRanking",
     "name": "투신전 랭킹",
-    "img": null,
+    "img": "assets/images/illustration/illustration-01.png",
     "content": "내 실력을 보여주지!"
   },
   {
     "url": "/itemSearch",
     "name": "아이템 검색",
-    "img": null,
+    "img": "assets/images/limpidity.png",
     "content": "없는거 빼고 다 있다~"
   },
   {

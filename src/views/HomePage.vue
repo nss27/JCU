@@ -31,15 +31,7 @@
       <ion-grid>
         <ion-row v-for="(row, index) in menuGrid" :key="index">
           <ion-col v-for="(data, index) in row" :key="index">
-            <ion-card v-if="data.url" :router-link="data.url" class="ion-no-margin menu-card">
-              <img :src="data.img" />
-              <ion-card-header>
-                <ion-card-title class="menu-name">{{data.name}}</ion-card-title>
-              </ion-card-header>
-              <ion-card-content>{{ data.content }}</ion-card-content>
-            </ion-card>
-
-            <ion-card v-else class="ion-no-margin menu-card">
+            <ion-card :router-link="data.url" class="ion-no-margin menu-card">
               <img :src="data.img" />
               <ion-card-header>
                 <ion-card-title class="menu-name">{{data.name}}</ion-card-title>
