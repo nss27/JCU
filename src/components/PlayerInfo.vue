@@ -22,21 +22,47 @@
                     </ion-row>
                 </ion-grid>
             </ion-item>
+
             <ion-list-header>
-                <ion-label>승률</ion-label>
+                <ion-label>일반전 승률</ion-label>
             </ion-list-header>
+
             <ion-item>
-                <ion-label>일반전</ion-label>
-                <ion-note slot="end" :color="gameNormalRatioColor">{{
-                `${gameNormalRatio}%`
-                }}</ion-note>
+                <ion-label>
+                    <ion-grid class="ion-no-padding">
+                        <ion-row>
+                            <ion-col>{{gameNormal.totalCount}}전</ion-col>
+                            <ion-col>{{gameNormal.winCount}}승</ion-col>
+                            <ion-col>{{gameNormal.loseCount}}패</ion-col>
+                            <ion-col>{{gameNormal.stopCount}}중단</ion-col>
+                            <ion-col>
+                                <ion-text :color="gameNormal.rateColor">{{gameNormal.rate}}%</ion-text>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ion-label>
             </ion-item>
+
+            <ion-list-header>
+                <ion-label>공식전 승률</ion-label>
+            </ion-list-header>
+
             <ion-item>
-                <ion-label>공식전</ion-label>
-                <ion-note slot="end" :color="gameRatingRatioColor">{{
-                `${gameRatingRatio}%`
-                }}</ion-note>
+                <ion-label>
+                    <ion-grid class="ion-no-padding">
+                        <ion-row>
+                            <ion-col>{{gameRating.totalCount}}전</ion-col>
+                            <ion-col>{{gameRating.winCount}}승</ion-col>
+                            <ion-col>{{gameRating.loseCount}}패</ion-col>
+                            <ion-col>{{gameRating.stopCount}}중단</ion-col>
+                            <ion-col>
+                                <ion-text :color="gameRating.rateColor">{{gameRating.rate}}%</ion-text>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ion-label>
             </ion-item>
+
             <ion-item v-if="playerInfo.tierName">
                 <ion-grid>
                     <ion-row class="ion-text-center ion-align-items-center">
@@ -56,9 +82,11 @@
                     </ion-row>
                 </ion-grid>
             </ion-item>
+
             <ion-item v-else>
                 <no-data-vue text="배치고사중"></no-data-vue>
             </ion-item>
+
             <ion-list-header>
                 <ion-label>
                     <h1><strong>매칭기록</strong></h1>
@@ -68,15 +96,18 @@
                     </p>
                 </ion-label>
             </ion-list-header>
+
             <ion-item>
                 <ion-segment v-model="gameTypeId">
                     <ion-segment-button value="rating">공식전</ion-segment-button>
                     <ion-segment-button value="normal">일반전</ion-segment-button>
                 </ion-segment>
             </ion-item>
+
             <ion-item v-if="Common.isNull(matches)">
                 <no-data-vue text="매칭기록이 존재하지 않습니다"></no-data-vue>
             </ion-item>
+
             <template v-else>
                 <ion-item v-for="(gameInfo, index) in matches" :key="index" button
                     :router-link="`/matches/${gameInfo.matchId}`">
@@ -126,7 +157,7 @@ import {
     IonList,
     IonButton
 } from '@ionic/vue';
-import { computed, defineComponent, onMounted, ref, toRefs, watch } from 'vue'
+import { computed, defineComponent, onBeforeUnmount, onMounted, ref, toRefs, watch } from 'vue'
 import NoDataVue from './NoData.vue';
 
 export default defineComponent({
@@ -149,12 +180,27 @@ export default defineComponent({
         NoDataVue
     },
     setup(props) {
+        const abortController = new AbortController();
+
         const { playerId, playerNickname } = toRefs(props);
         const playerInfo = ref();
         const gameTypeId = ref<'rating' | 'normal'>('rating');
         const next = ref('');
         const matches = ref();
         const searchWords = ref();
+
+        const errorHanbler = async (err: Error) => {
+            if (err.name !== 'AbortError') {
+                const alert = await alertController.create({
+                    header: '오류 발생',
+                    subHeader: `${err.message}`,
+                    buttons: ['ok'],
+                    mode: 'ios'
+                })
+
+                await alert.present();
+            }
+        }
 
         const playerSearch = async () => {
             const loading = await loadingController.create({
@@ -165,22 +211,18 @@ export default defineComponent({
             await loading.present();
 
             try {
-                playerInfo.value = await NeopleApi.cyPlayerMatches({
-                    playerId: playerId.value,
-                    gameTypeId: gameTypeId.value,
-                });
+                playerInfo.value = await NeopleApi.cyPlayerMatches(
+                    {
+                        playerId: playerId.value,
+                        gameTypeId: gameTypeId.value,
+                    },
+                    { signal: abortController.signal }
+                );
                 gameTypeId.value = playerInfo.value.matches.gameTypeId;
                 next.value = playerInfo.value.matches.next;
                 matches.value = playerInfo.value.matches.rows;
-            } catch (error) {
-                const alert = await alertController.create({
-                    header: "오류 발생",
-                    subHeader: `${error}`,
-                    buttons: ["OK"],
-                    mode: "ios",
-                });
-
-                await alert.present();
+            } catch (err: any) {
+                errorHanbler(err);
             } finally {
                 await loading.dismiss();
             }
@@ -210,92 +252,65 @@ export default defineComponent({
 
                 matches.value = [...matches.value, ...json.matches.rows];
                 next.value = json.matches.next;
-            } catch (error) {
-                const alert = await alertController.create({
-                    header: "오류 발생",
-                    subHeader: `${error}`,
-                    buttons: ["OK"],
-                    mode: "ios",
-                });
-
-                await alert.present();
+            } catch (err: any) {
+                errorHanbler(err);
             } finally {
                 await loading.dismiss();
             }
         };
 
-        const gameNormalRatio = computed(() => {
-            let ratio = 0;
+        const gameRateColor = (rate: number) => {
+            let color = "";
+
+            if (rate >= 75) {
+                color = "primary";
+            } else if (rate >= 50) {
+                color = "success";
+            } else if (rate >= 25) {
+                color = "warning";
+            } else {
+                color = "danger";
+            }
+            return color;
+        }
+
+        const gameNormal = computed(() => {
             let game = null;
 
             if (!Common.isNull(playerInfo)) {
-                game = (playerInfo.value.records as any[]).filter(
-                    (game) => game.gameTypeId === "normal"
-                )[0];
-            }
+                game = (playerInfo.value.records as any[]).filter(game => game.gameTypeId === "normal")[0];
 
-            if (!Common.isNull(game)) {
+                game.totalCount = game.winCount + game.loseCount + game.stopCount;
+
                 if (game.winCount + game.loseCount > 0) {
-                    ratio =
-                        Math.round(
-                            (game.winCount / (game.winCount + game.loseCount)) * 10000
-                        ) / 100;
+                    game.rate = Math.round((game.winCount / (game.winCount + game.loseCount)) * 10000) / 100;
+                } else {
+                    game.rate = 0;
                 }
+
+                game.rateColor = gameRateColor(game.rate);
             }
 
-            return ratio;
+            return game;
         });
 
-        const gameNormalRatioColor = computed(() => {
-            let color = "";
-
-            if (gameNormalRatio.value >= 75) {
-                color = "primary";
-            } else if (gameNormalRatio.value >= 50) {
-                color = "success";
-            } else if (gameNormalRatio.value >= 25) {
-                color = "warning";
-            } else {
-                color = "danger";
-            }
-            return color;
-        });
-
-        const gameRatingRatio = computed(() => {
-            let ratio = 0;
+        const gameRating = computed(() => {
             let game = null;
 
             if (!Common.isNull(playerInfo)) {
-                game = (playerInfo.value.records as any[]).filter(
-                    (game) => game.gameTypeId === "rating"
-                )[0];
-            }
+                game = (playerInfo.value.records as any[]).filter(game => game.gameTypeId === "rating")[0];
 
-            if (!Common.isNull(game)) {
-                if (game.winCount + game.loseCount) {
-                    ratio =
-                        Math.round(
-                            (game.winCount / (game.winCount + game.loseCount)) * 10000
-                        ) / 100;
+                game.totalCount = game.winCount + game.loseCount + game.stopCount;
+
+                if (game.winCount + game.loseCount > 0) {
+                    game.rate = Math.round((game.winCount / (game.winCount + game.loseCount)) * 10000) / 100;
+                } else {
+                    game.rate = 0;
                 }
             }
 
-            return ratio;
-        });
-
-        const gameRatingRatioColor = computed(() => {
-            let color = "";
-
-            if (gameRatingRatio.value >= 75) {
-                color = "primary";
-            } else if (gameRatingRatio.value >= 50) {
-                color = "success";
-            } else if (gameRatingRatio.value >= 25) {
-                color = "warning";
-            } else {
-                color = "danger";
-            }
-            return color;
+            game.rateColor = gameRateColor(game.rate);
+            return game;
         });
 
         watch(gameTypeId, (newVal, oldVal) => {
@@ -320,14 +335,16 @@ export default defineComponent({
             playerSearch();
         })
 
+        onBeforeUnmount(() => {
+            abortController.abort();
+        })
+
         return {
             NeopleApi,
             Common,
             playerInfo,
-            gameNormalRatio,
-            gameNormalRatioColor,
-            gameRatingRatio,
-            gameRatingRatioColor,
+            gameNormal,
+            gameRating,
             gameTypeId,
             next,
             matches,

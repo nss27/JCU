@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue'
+import { defineComponent, onBeforeUnmount, onMounted, ref } from 'vue'
 import {
     IonPage,
     IonHeader,
@@ -70,9 +70,24 @@ export default defineComponent({
         HomeButtonVue
     },
     setup() {
+        const abortController = new AbortController();
         const route = useRoute();
         const attributeId = route.params.attributeId as string;
+
         const positionInfo = ref();
+
+        const errorHanbler = async (err: Error) => {
+            if (err.name !== 'AbortError') {
+                const alert = await alertController.create({
+                    header: '오류 발생',
+                    subHeader: `${err.message}`,
+                    buttons: ['ok'],
+                    mode: 'ios'
+                })
+
+                await alert.present();
+            }
+        }
 
         onMounted(async () => {
             const loading = await loadingController.create({
@@ -83,19 +98,16 @@ export default defineComponent({
             await loading.present();
 
             try {
-                positionInfo.value = await NeopleApi.cyPositionInfo({ attributeId: attributeId });
-            } catch (error) {
-                const alert = await alertController.create({
-                    header: "오류 발생",
-                    subHeader: `${error}`,
-                    buttons: ["OK"],
-                    mode: "ios",
-                });
-
-                await alert.present();
+                positionInfo.value = await NeopleApi.cyPositionInfo({ attributeId: attributeId }, { signal: abortController.signal });
+            } catch (err: any) {
+                errorHanbler(err);
             } finally {
                 await loading.dismiss();
             }
+        })
+
+        onBeforeUnmount(() => {
+            abortController.abort();
         })
 
         return {

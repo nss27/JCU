@@ -10,15 +10,15 @@
                     <home-button-vue></home-button-vue>
                 </ion-buttons>
             </ion-toolbar>
-            <ion-toolbar v-if="false">
+            <ion-toolbar>
                 <ion-buttons slot="start">
                     <ion-button @click="getRanking(true)">
                         <ion-icon slot="icon-only" :icon="refresh"></ion-icon>
                     </ion-button>
                 </ion-buttons>
-                <ion-searchbar v-model="searchWord"></ion-searchbar>
+                <ion-searchbar v-model="searchWord" placeholder="닉네임을 입력하세요" @keypress.enter="enter()"></ion-searchbar>
                 <ion-buttons slot="end">
-                    <ion-button>
+                    <ion-button @click="searchBtnClick()">
                         <ion-icon slot="icon-only" :icon="search"></ion-icon>
                     </ion-button>
                 </ion-buttons>
@@ -104,7 +104,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref, watch } from 'vue'
+import { computed, defineComponent, onBeforeUnmount, ref, watch } from 'vue'
 import {
     IonPage,
     IonContent,
@@ -126,7 +126,8 @@ import {
     IonItem,
     IonNote,
     loadingController,
-    alertController
+    alertController,
+    onIonViewWillEnter,
 } from '@ionic/vue';
 import NoDataVue from '@/components/NoData.vue';
 import HomeButtonVue from '@/components/HomeButton.vue';
@@ -139,6 +140,7 @@ import 'swiper/css/pagination';
 import '@ionic/vue/css/ionic-swiper.css';
 import { search, refresh } from 'ionicons/icons';
 import Common from '@/utils/Common';
+import { useRoute, useRouter } from 'vue-router';
 
 type RankingType = "winCount" | "winRate" | "killCount" | "assistCount" | "exp";
 
@@ -169,6 +171,10 @@ export default defineComponent({
         SwiperSlide
     },
     setup() {
+        const abortController = new AbortController();
+        const router = useRouter();
+        const route = useRoute();
+
         const rankingTypes = ref([
             {
                 typeKor: '승리수',
@@ -196,8 +202,8 @@ export default defineComponent({
                 color: 'medium'
             }
         ])
-        const characterId = ref<string>(characters[0].characterId);
-        const rankingType = ref<RankingType>(rankingTypes.value[0].typeEng as RankingType);
+        const characterId = ref<string>(route.params.characterId as string);
+        const rankingType = ref<RankingType>(route.params.rankingType as RankingType);
         const searchWord = ref<string>('');
         const list = ref<any[]>([]);
         const characterGrid = ref<any[]>([]);
@@ -217,6 +223,19 @@ export default defineComponent({
                 row = [];
             }
         });
+
+        const errorHanbler = async (err: Error) => {
+            if (err.name !== 'AbortError') {
+                const alert = await alertController.create({
+                    header: '오류 발생',
+                    subHeader: `${err.message}`,
+                    buttons: ['ok'],
+                    mode: 'ios'
+                })
+
+                await alert.present();
+            }
+        }
 
         const characterClick = (data: string) => {
             characterId.value = data;
@@ -249,6 +268,8 @@ export default defineComponent({
                     characterId: characterId.value,
                     rankingType: rankingType.value,
                     offset: offset.value
+                }, {
+                    signal: abortController.signal
                 })
 
                 if (Common.isNull(data.rows)) {
@@ -258,48 +279,117 @@ export default defineComponent({
                     list.value = [...list.value, ...data.rows];
                     offset.value += data.rows.length < 10 ? 0 : 10;
                 }
-            } catch (error) {
-                const alert = await alertController.create({
-                    header: '오류 발생',
-                    subHeader: `${error}`,
-                    buttons: ['ok'],
+
+                slides.slideTo(1);
+            } catch (err: any) {
+                errorHanbler(err);
+            } finally {
+                await loading.dismiss();
+            }
+        }
+
+        const searchRanking = async () => {
+            const nicknames = searchWord.value.split(' ').filter(nickname => !Common.isNull(nickname));
+
+            if (!Common.isNull(nicknames)) {
+                list.value = [];
+                offset.value = -1;
+
+                const playerRankings: any[] = [];
+
+                const loading = await loadingController.create({
+                    message: '데이터 조회중',
                     mode: 'ios'
                 })
 
-                await alert.present();
-            } finally {
-                await loading.dismiss();
-                slides.slideTo(1);
+                await loading.present();
+
+                try {
+                    for (let i = 0; i < nicknames.length; i++) {
+                        loading.message = `플레이어 '${nicknames[i]}'<br>랭킹 조회중`;
+
+                        const playerIdJson = await NeopleApi.cyPlayerId({ nickname: encodeURI(nicknames[i]) }, { signal: abortController.signal });
+
+                        if (!Common.isNull(playerIdJson.rows)) {
+                            const data = await NeopleApi.cyCharacterRanking(
+                                {
+                                    characterId: characterId.value,
+                                    rankingType: rankingType.value,
+                                    playerId: playerIdJson.rows[0].playerId
+                                },
+                                { signal: abortController.signal }
+                            );
+                            playerRankings.push(...data.rows);
+                        }
+                    }
+
+                    list.value = playerRankings;
+                    slides.slideTo(1);
+                } catch (err) {
+                    errorHanbler(err as Error);
+                } finally {
+                    await loading.dismiss();
+                }
             }
         }
+
+        const movePage = async () => {
+            if (Common.isNull(searchWord.value)) {
+                const alert = await alertController.create({
+                    message: '닉네임을 입력 후 다시 시도해주세요',
+                    buttons: ["OK"],
+                    mode: "ios",
+                });
+
+                await alert.present();
+            } else {
+                router.push({
+                    path: `/characterRanKing/${characterId.value}/${rankingType.value}/${encodeURI(searchWord.value)}`
+                })
+            }
+        }
+
+        const enter = () => {
+            setTimeout(() => {
+                movePage();
+            }, 250);
+        };
+
+        const searchBtnClick = () => {
+            movePage();
+        };
 
         const showAddBtn = computed(() => offset.value > 0);
 
         watch(characterId, () => {
-            characterGrid.value.map((row: any[]) => {
-                row.map(data => {
-                    if (data.characterId === characterId.value) {
-                        data.class = 'active';
-                        data.color = 'primary';
-                    } else {
-                        data.class = '';
-                        data.color = 'medium';
-                    }
-                    return data;
-                })
-                return row;
-            })
+            // characterGrid.value.map((row: any[]) => {
+            //     row.map(data => {
+            //         if (data.characterId === characterId.value) {
+            //             data.class = 'active';
+            //             data.color = 'primary';
+            //         } else {
+            //             data.class = '';
+            //             data.color = 'medium';
+            //         }
+            //         return data;
+            //     })
+            //     return row;
+            // })
 
-            getRanking(true);
+            // getRanking(true);
+
+            movePage();
         })
 
         watch(rankingType, () => {
-            rankingTypes.value.map(data => {
-                data.color = data.typeEng === rankingType.value ? '' : 'medium';
-                return data;
-            })
+            // rankingTypes.value.map(data => {
+            //     data.color = data.typeEng === rankingType.value ? '' : 'medium';
+            //     return data;
+            // })
 
-            getRanking(true);
+            // getRanking(true);
+
+            movePage();
         })
 
         watch(list, () => {
@@ -309,8 +399,19 @@ export default defineComponent({
             })
         })
 
-        onMounted(() => {
-            getRanking(true);
+        onIonViewWillEnter(() => {
+            if (route.params.searchWord !== searchWord.value) searchWord.value = route.params.searchWord as string;
+            if (Common.isNull(list.value)) {
+                if (Common.isNull(searchWord.value)) {
+                    getRanking(true);
+                } else {
+                    searchRanking();
+                }
+            }
+        })
+
+        onBeforeUnmount(() => {
+            abortController.abort();
         })
 
         return {
@@ -328,7 +429,9 @@ export default defineComponent({
             characterClick,
             rankingTypeClick,
             onSwiper,
-            getRanking
+            getRanking,
+            enter,
+            searchBtnClick
         }
     },
 })

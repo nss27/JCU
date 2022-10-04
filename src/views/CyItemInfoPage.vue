@@ -22,7 +22,7 @@
             <h1 class="ion-no-margin">
               <strong>
                 <ion-text :color="itemInfo.itemColor">{{
-                  itemInfo.itemName
+                itemInfo.itemName
                 }}</ion-text>
               </strong>
             </h1>
@@ -36,14 +36,14 @@
         </ion-item>
       </ion-list>
       <ion-button expand="block" @click="detailView()">{{
-        btnName
+      btnName
       }}</ion-button>
     </ion-content>
   </ion-page>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from "vue";
+import { computed, defineComponent, onBeforeUnmount, onMounted, ref } from "vue";
 import {
   IonPage,
   IonHeader,
@@ -83,10 +83,25 @@ export default defineComponent({
     HomeButtonVue,
   },
   setup() {
+    const abortController = new AbortController();
     const route = useRoute();
     const itemId = route.params.itemId as string;
+
     const itemInfo = ref();
     const detail = ref(false);
+
+    const errorHanbler = async (err: Error) => {
+      if (err.name !== 'AbortError') {
+        const alert = await alertController.create({
+          header: '오류 발생',
+          subHeader: `${err.message}`,
+          buttons: ['ok'],
+          mode: 'ios'
+        })
+
+        await alert.present();
+      }
+    }
 
     const explain = computed(() => {
       if (detail.value) {
@@ -139,21 +154,18 @@ export default defineComponent({
       await loading.present();
 
       try {
-        itemInfo.value = await NeopleApi.cyItemsInfo({ itemId: itemId });
+        itemInfo.value = await NeopleApi.cyItemsInfo({ itemId: itemId }, { signal: abortController.signal });
         itemInfo.value.itemColor = getItemColor(itemInfo.value.rarityName);
-      } catch (error) {
-        const alert = await alertController.create({
-          header: "오류 발생",
-          subHeader: `${error}`,
-          buttons: ["OK"],
-          mode: "ios",
-        });
-
-        await alert.present();
+      } catch (err: any) {
+        errorHanbler(err);
       } finally {
         await loading.dismiss();
       }
     });
+
+    onBeforeUnmount(() => {
+      abortController.abort();
+    })
 
     return {
       itemInfo,
@@ -166,4 +178,6 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+
+</style>

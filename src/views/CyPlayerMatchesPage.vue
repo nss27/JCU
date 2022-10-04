@@ -10,12 +10,19 @@
           <home-button-vue></home-button-vue>
         </ion-buttons>
       </ion-toolbar>
+      <ion-toolbar>
+        <ion-segment v-model="showType">
+          <ion-segment-button value="briefly">간략히</ion-segment-button>
+          <ion-segment-button value="details">자세히</ion-segment-button>
+        </ion-segment>
+      </ion-toolbar>
     </ion-header>
 
     <ion-content :fullscreen="true">
       <ion-list v-if="!Common.isNull(players)" lines="none">
         <template v-for="(player, index) in players" :key="index">
-          <ion-item :color="player.playInfo.gameResult" :id="player.playerId">
+          <ion-item :color="player.playInfo.gameResult" :id="player.playerId" button
+            :router-link="`/playerInfo/${encodeURI(player.nickname)}`">
             <ion-thumbnail slot="start">
               <img :src="NeopleApi.getCharacterImage(player.playInfo.characterId)" />
               <img :src="NeopleApi.getPositionImage(player.position.name)" class="position-icon" />
@@ -31,7 +38,8 @@
             </ion-label>
           </ion-item>
 
-          <ion-item v-if="!Common.isNull(player.playInfo.partyData)" :color="player.playInfo.gameResult">
+          <ion-item v-if="!Common.isNull(player.playInfo.partyData) && player.isDetail"
+            :color="player.playInfo.gameResult">
             <div>
               <ion-chip v-for="(partyInfo, index) in player.playInfo.partyData" :key="index" color="dark"
                 @click="moveToId(partyInfo.playerId)">
@@ -94,7 +102,7 @@
                 </ion-col>
               </ion-row>
 
-              <ion-row class="ion-align-items-center">
+              <ion-row v-if="player.isDetail" class="ion-align-items-center">
                 <ion-col>
                   <ion-text color="medium">힐량</ion-text>
                 </ion-col>
@@ -109,7 +117,7 @@
                 </ion-col>
               </ion-row>
 
-              <ion-row class="ion-align-items-center">
+              <ion-row v-if="player.isDetail" class="ion-align-items-center">
                 <ion-col>
                   <ion-text color="medium">획득코인</ion-text>
                 </ion-col>
@@ -124,7 +132,7 @@
                 </ion-col>
               </ion-row>
 
-              <ion-row class="ion-align-items-center">
+              <ion-row v-if="player.isDetail" class="ion-align-items-center">
                 <ion-col>
                   <ion-text color="medium">총 CS</ion-text>
                 </ion-col>
@@ -141,7 +149,7 @@
             </ion-grid>
           </ion-item>
 
-          <ion-item lines="inset">
+          <ion-item v-if="player.isDetail" lines="inset">
             <ion-label>
               <ion-text color="medium">특성</ion-text>
               <div class="position-box">
@@ -151,7 +159,7 @@
             </ion-label>
           </ion-item>
 
-          <ion-item>
+          <ion-item v-if="player.isDetail">
             <ion-label>
               <ion-text color="medium">아이템</ion-text>
               <div class="item-box">
@@ -163,6 +171,13 @@
               </div>
             </ion-label>
           </ion-item>
+
+          <ion-item class="ion-text-center" button :detail="false" @click="showTypeChange(player)">
+            <ion-label color="medium">
+              {{showTypeText(player)}}
+              <ion-icon :icon="showTypeIcon(player)"></ion-icon>
+            </ion-label>
+          </ion-item>
         </template>
       </ion-list>
       <no-data-vue v-else></no-data-vue>
@@ -171,7 +186,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from "vue";
+import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import {
   IonPage,
   IonHeader,
@@ -191,13 +206,17 @@ import {
   IonRow,
   IonCol,
   IonThumbnail,
-  IonText
+  IonText,
+  IonSegment,
+  IonSegmentButton,
+  IonIcon
 } from "@ionic/vue";
 import NeopleApi from "@/utils/NeopleApi";
 import { useRoute, useRouter } from "vue-router";
 import Common from "@/utils/Common";
 import NoDataVue from "@/components/NoData.vue";
 import HomeButtonVue from "@/components/HomeButton.vue";
+import { chevronDown, chevronUp } from "ionicons/icons";
 
 export default defineComponent({
   components: {
@@ -218,13 +237,20 @@ export default defineComponent({
     IonCol,
     IonThumbnail,
     IonText,
+    IonSegment,
+    IonSegmentButton,
+    IonIcon,
     NoDataVue,
     HomeButtonVue
   },
   setup() {
+    const abortController = new AbortController();
     const route = useRoute();
     const router = useRouter();
+
     const gameInfo = ref();
+    const showType = ref('briefly');
+
     const equipSlotCodeInfo: { [key: number]: string } = {
       101: '손(공격)',
       102: '머리(치명)',
@@ -243,6 +269,19 @@ export default defineComponent({
       204: '장신구3',
       205: '장신구4'
     };
+
+    const errorHanbler = async (err: Error) => {
+      if (err.name !== 'AbortError') {
+        const alert = await alertController.create({
+          header: '오류 발생',
+          subHeader: `${err.message}`,
+          buttons: ['ok'],
+          mode: 'ios'
+        })
+
+        await alert.present();
+      }
+    }
 
     const players = computed(() => {
       const result = [] as any[];
@@ -291,6 +330,7 @@ export default defineComponent({
             playerData.playInfo.gameResult = team.result;
             playerData.playInfo.partyData = getParty(playerData);
             playerData.playInfo.kda = getKDA(playerData);
+            playerData.isDetail = false;
 
             result.push(playerData);
           });
@@ -380,6 +420,18 @@ export default defineComponent({
       })
     }
 
+    const showTypeChange = (data: any) => {
+      data.isDetail = !data.isDetail;
+    }
+
+    const showTypeText = (data: any) => {
+      return data.isDetail ? '간략히보기' : '자세히보기';
+    }
+
+    const showTypeIcon = (data: any) => {
+      return data.isDetail ? chevronUp : chevronDown;
+    }
+
     onMounted(async () => {
       const loading = await loadingController.create({
         message: "데이터 조회중",
@@ -389,30 +441,45 @@ export default defineComponent({
       await loading.present();
 
       try {
-        gameInfo.value = await NeopleApi.cyPlayerMatchesInfo({
-          matchId: route.params.matchId as string,
-        });
-      } catch (error) {
-        const alert = await alertController.create({
-          header: "오류 발생",
-          subHeader: `${error}`,
-          buttons: ["OK"],
-          mode: "ios",
-        });
-
-        await alert.present();
+        gameInfo.value = await NeopleApi.cyPlayerMatchesInfo({ matchId: route.params.matchId as string }, { signal: abortController.signal });
+      } catch (err: any) {
+        errorHanbler(err);
       } finally {
         await loading.dismiss();
       }
     });
 
+    watch(showType, async () => {
+      const loading = await loadingController.create({
+        message: '처리중',
+        mode: 'ios'
+      });
+
+      await loading.present();
+
+      players.value.map(player => {
+        player.isDetail = showType.value === 'details';
+        return player;
+      });
+
+      await loading.dismiss();
+    })
+
+    onBeforeUnmount(() => {
+      abortController.abort();
+    })
+
     return {
       Common,
       NeopleApi,
       players,
+      showType,
       getItemInfo,
       getPositionInfo,
-      moveToId
+      moveToId,
+      showTypeChange,
+      showTypeText,
+      showTypeIcon
     };
   },
 });

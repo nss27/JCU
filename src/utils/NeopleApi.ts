@@ -73,7 +73,7 @@ export default class NeopleApi {
    * @param data
    * @returns
    */
-  static async cyPlayerId(data: CyPlayerIdReq) {
+  static async cyPlayerId(data: CyPlayerIdReq, opt?: RequestInit) {
     const paramsObj = {
       apikey: key,
       ...data,
@@ -84,7 +84,8 @@ export default class NeopleApi {
     );
 
     const json = await fetch(
-      `${proxyServer}/cyphers/cy/players?${params.join("&")}`
+      `${proxyServer}/cyphers/cy/players?${params.join("&")}`,
+      opt
     )
       .then(errorHandler)
       .then((res) => res.json());
@@ -97,7 +98,7 @@ export default class NeopleApi {
    * @param data
    * @returns
    */
-  static async cyPlayerInfo(data: CyPlayerInfoReq) {
+  static async cyPlayerInfo(data: CyPlayerInfoReq, opt?: RequestInit) {
     const paramsObj = {
       apikey: key,
     };
@@ -107,7 +108,8 @@ export default class NeopleApi {
     );
 
     const json = await fetch(
-      `${proxyServer}/cyphers/cy/players/${data.playerId}?${params.join("&")}`
+      `${proxyServer}/cyphers/cy/players/${data.playerId}?${params.join("&")}`,
+      opt
     )
       .then(errorHandler)
       .then((res) => res.json());
@@ -120,7 +122,7 @@ export default class NeopleApi {
    * @param data
    * @returns
    */
-  static async cyPlayerMatches(data: CyPlayerMatchesReq) {
+  static async cyPlayerMatches(data: CyPlayerMatchesReq, opt?: RequestInit) {
     const paramsObj = {
       apikey: key,
       ...data,
@@ -133,7 +135,8 @@ export default class NeopleApi {
     const json = await fetch(
       `${proxyServer}/cyphers/cy/players/${data.playerId}/matches?${params.join(
         "&"
-      )}`
+      )}`,
+      opt
     )
       .then(errorHandler)
       .then((res) => res.json());
@@ -146,7 +149,10 @@ export default class NeopleApi {
    * @param data
    * @returns
    */
-  static async cyPlayerMatchesInfo(data: CyPlayerMatchesInfoReq) {
+  static async cyPlayerMatchesInfo(
+    data: CyPlayerMatchesInfoReq,
+    opt?: RequestInit
+  ) {
     const paramsObj = {
       apikey: key,
       ...data,
@@ -157,7 +163,8 @@ export default class NeopleApi {
     });
 
     const json = await fetch(
-      `${proxyServer}/cyphers/cy/matches/${data.matchId}?${params.join("&")}`
+      `${proxyServer}/cyphers/cy/matches/${data.matchId}?${params.join("&")}`,
+      opt
     )
       .then(errorHandler)
       .then((res) => res.json());
@@ -170,7 +177,7 @@ export default class NeopleApi {
    * @param data
    * @returns
    */
-  static async cyItemsInfo(data: CyItemsInfoReq) {
+  static async cyItemsInfo(data: CyItemsInfoReq, opt?: RequestInit) {
     const paramsObj = {
       apikey: key,
       ...data,
@@ -181,7 +188,10 @@ export default class NeopleApi {
     });
 
     const json = await fetch(
-      `${proxyServer}/cyphers/cy/battleitems/${data.itemId}?${params.join("&")}`
+      `${proxyServer}/cyphers/cy/battleitems/${data.itemId}?${params.join(
+        "&"
+      )}`,
+      opt
     )
       .then(errorHandler)
       .then((res) => res.json());
@@ -194,7 +204,7 @@ export default class NeopleApi {
    * @param data
    * @returns
    */
-  static async cyPositionInfo(data: CyPositionInfoReq) {
+  static async cyPositionInfo(data: CyPositionInfoReq, opt?: RequestInit) {
     const paramsObj = {
       apikey: key,
       ...data,
@@ -207,7 +217,8 @@ export default class NeopleApi {
     const json = await fetch(
       `${proxyServer}/cyphers/cy/position-attributes/${
         data.attributeId
-      }?${params.join("&")}`
+      }?${params.join("&")}`,
+      opt
     )
       .then(errorHandler)
       .then((res) => res.json());
@@ -220,7 +231,7 @@ export default class NeopleApi {
    * @param data
    * @returns
    */
-  static async cyTotalRanking(data: CyTotalRankingReq) {
+  static async cyTotalRanking(data: CyTotalRankingReq, opt?: RequestInit) {
     const paramsObj = {
       apikey: key,
       ...data,
@@ -231,7 +242,8 @@ export default class NeopleApi {
     );
 
     const json = await fetch(
-      `${proxyServer}/cyphers/cy/ranking/ratingpoint?${params.join("&")}`
+      `${proxyServer}/cyphers/cy/ranking/ratingpoint?${params.join("&")}`,
+      opt
     )
       .then(errorHandler)
       .then((res) => res.json());
@@ -244,7 +256,10 @@ export default class NeopleApi {
    * @param data
    * @returns
    */
-  static async cyCharacterRanking(data: CyCharacterRankingReq) {
+  static async cyCharacterRanking(
+    data: CyCharacterRankingReq,
+    opt?: RequestInit
+  ) {
     const paramsObj = {
       apikey: key,
       ...data,
@@ -258,7 +273,8 @@ export default class NeopleApi {
     const json = await fetch(
       `${proxyServer}/cyphers/cy/ranking/characters/${data.characterId}/${
         data.rankingType
-      }?${params.join("&")}`
+      }?${params.join("&")}`,
+      opt
     )
       .then(errorHandler)
       .then((res) => res.json());

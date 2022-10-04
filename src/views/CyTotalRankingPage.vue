@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref } from 'vue'
+import { computed, defineComponent, onBeforeUnmount, ref } from 'vue'
 import {
     IonPage,
     IonContent,
@@ -67,7 +67,7 @@ import {
     IonButton,
     loadingController,
     alertController,
-    onIonViewWillEnter
+    onIonViewWillEnter,
 } from '@ionic/vue';
 import { refresh, search } from 'ionicons/icons';
 import NeopleApi from '@/utils/NeopleApi';
@@ -99,10 +99,24 @@ export default defineComponent({
     setup() {
         const route = useRoute();
         const router = useRouter();
+        const abortController = new AbortController();
 
         const list = ref<any[]>([]);
         const offset = ref(0);
         const searchWord = ref('');
+
+        const errorHanbler = async (err: Error) => {
+            if (err.name !== 'AbortError') {
+                const alert = await alertController.create({
+                    header: '오류 발생',
+                    subHeader: `${err.message}`,
+                    buttons: ['ok'],
+                    mode: 'ios'
+                })
+
+                await alert.present();
+            }
+        }
 
         const getRanking = async (refresh?: boolean) => {
             if (!Common.isNull(refresh) && refresh) {
@@ -119,7 +133,7 @@ export default defineComponent({
             await loading.present();
 
             try {
-                const data = await NeopleApi.cyTotalRanking({ offset: offset.value });
+                const data = await NeopleApi.cyTotalRanking({ offset: offset.value }, { signal: abortController.signal });
 
                 if (Common.isNull(data.rows)) {
                     list.value = [];
@@ -128,15 +142,8 @@ export default defineComponent({
                     list.value.push(...data.rows);
                     offset.value += 10;
                 }
-            } catch (error) {
-                const alert = await alertController.create({
-                    header: '오류 발생',
-                    subHeader: `${error}`,
-                    buttons: ['ok'],
-                    mode: 'ios'
-                })
-
-                await alert.present();
+            } catch (err) {
+                errorHanbler(err as Error);
             } finally {
                 await loading.dismiss();
             }
@@ -162,38 +169,25 @@ export default defineComponent({
                     for (let i = 0; i < nicknames.length; i++) {
                         loading.message = `플레이어 '${nicknames[i]}'<br>랭킹 조회중`;
 
-                        const playerIdJson = await NeopleApi.cyPlayerId({
-                            nickname: encodeURI(nicknames[i]),
-                        });
+                        const playerIdJson = await NeopleApi.cyPlayerId({ nickname: encodeURI(nicknames[i]) }, { signal: abortController.signal });
 
                         if (!Common.isNull(playerIdJson.rows)) {
-
-                            const data = await NeopleApi.cyTotalRanking({
-                                playerId: playerIdJson.rows[0].playerId
-                            });
-
+                            const data = await NeopleApi.cyTotalRanking({ playerId: playerIdJson.rows[0].playerId }, { signal: abortController.signal });
                             playerRankings.push(...data.rows);
                         }
                     }
 
                     list.value = playerRankings;
-                } catch (error) {
-                    const alert = await alertController.create({
-                        header: '오류 발생',
-                        subHeader: `${error}`,
-                        buttons: ['ok'],
-                        mode: 'ios'
-                    })
-
-                    await alert.present();
+                } catch (err) {
+                    errorHanbler(err as Error);
                 } finally {
                     await loading.dismiss();
                 }
             }
         }
 
-        const movePage = async (word: string) => {
-            if (Common.isNull(word)) {
+        const movePage = async () => {
+            if (Common.isNull(searchWord.value)) {
                 const alert = await alertController.create({
                     message: '닉네임을 입력 후 다시 시도해주세요',
                     buttons: ["OK"],
@@ -203,19 +197,19 @@ export default defineComponent({
                 await alert.present();
             } else {
                 router.push({
-                    path: `/totalRanking/${encodeURI(word)}`
+                    path: `/totalRanking/${encodeURI(searchWord.value)}`
                 })
             }
         }
 
         const enter = () => {
             setTimeout(() => {
-                movePage(searchWord.value);
+                movePage();
             }, 250);
         };
 
         const searchBtnClick = () => {
-            movePage(searchWord.value);
+            movePage();
         };
 
         const showAddBtn = computed(() => offset.value > 0);
@@ -230,6 +224,10 @@ export default defineComponent({
                 }
             }
         });
+
+        onBeforeUnmount(() => {
+            abortController.abort();
+        })
 
         return {
             Common,

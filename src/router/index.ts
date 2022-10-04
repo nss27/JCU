@@ -62,7 +62,7 @@ const routes: Array<RouteRecordRaw> = [
     component: CyTotalRankingPage,
   },
   {
-    path: "/characterRanKing/:searchWord?/:characterId?/:rankingType?",
+    path: "/characterRanKing/:characterId/:rankingType/:searchWord?",
     component: CyCharacterRankingPage,
   },
   {

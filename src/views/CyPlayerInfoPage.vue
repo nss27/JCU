@@ -63,7 +63,7 @@ import {
   alertController,
   onIonViewWillEnter
 } from "@ionic/vue";
-import { defineComponent, onMounted, ref, watch } from "vue";
+import { defineComponent, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { search, close } from "ionicons/icons";
 import NeopleApi from "@/utils/NeopleApi";
 import Common from "@/utils/Common";
@@ -99,6 +99,7 @@ export default defineComponent({
     HomeButtonVue
   },
   setup() {
+    const abortController = new AbortController();
     const route = useRoute();
     const router = useRouter();
 
@@ -108,6 +109,19 @@ export default defineComponent({
     const players = ref<{ playerId: string, playerNickname: string }[]>([]);
 
     let idb: IDBPDatabase<unknown>;
+
+    const errorHanbler = async (err: Error) => {
+      if (err.name !== 'AbortError') {
+        const alert = await alertController.create({
+          header: '오류 발생',
+          subHeader: `${err.message}`,
+          buttons: ['ok'],
+          mode: 'ios'
+        })
+
+        await alert.present();
+      }
+    }
 
     const playerSearch = async () => {
       const nicknames = searchWord.value.split(' ').filter(nickname => !Common.isNull(nickname));
@@ -124,9 +138,7 @@ export default defineComponent({
 
         try {
           for (let i = 0; i < nicknames.length; i++) {
-            const playerIdJson = await NeopleApi.cyPlayerId({
-              nickname: encodeURI(nicknames[i]),
-            });
+            const playerIdJson = await NeopleApi.cyPlayerId({ nickname: encodeURI(nicknames[i]) }, { signal: abortController.signal });
 
             if (!Common.isNull(playerIdJson.rows)) {
               players.value.push({
@@ -135,15 +147,8 @@ export default defineComponent({
               })
             }
           }
-        } catch (error) {
-          const alert = await alertController.create({
-            header: "오류 발생",
-            subHeader: `${error}`,
-            buttons: ["OK"],
-            mode: "ios",
-          });
-
-          await alert.present();
+        } catch (err: any) {
+          errorHanbler(err);
         } finally {
           await loading.dismiss();
 
@@ -213,6 +218,10 @@ export default defineComponent({
 
       searchWords.value = await idb.getAll(tableName);
     });
+
+    onBeforeUnmount(() => {
+      abortController.abort();
+    })
 
     return {
       NeopleApi,
