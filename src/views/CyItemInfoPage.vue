@@ -7,6 +7,7 @@
         </ion-buttons>
         <ion-title>아이템정보</ion-title>
         <ion-buttons slot="end">
+          <web-share-button-vue></web-share-button-vue>
           <home-button-vue></home-button-vue>
         </ion-buttons>
       </ion-toolbar>
@@ -64,6 +65,7 @@ import {
 import NeopleApi from "@/utils/NeopleApi";
 import { useRoute } from "vue-router";
 import HomeButtonVue from "@/components/HomeButton.vue";
+import WebShareButtonVue from "@/components/WebShareButton.vue";
 
 export default defineComponent({
   components: {
@@ -81,6 +83,7 @@ export default defineComponent({
     IonBackButton,
     IonText,
     HomeButtonVue,
+    WebShareButtonVue
   },
   setup() {
     const abortController = new AbortController();

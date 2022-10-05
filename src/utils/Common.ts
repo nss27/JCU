@@ -76,7 +76,7 @@ export default class Common {
     if (list.length > 3)
       list = list
         .reverse()
-        .map((val, i) => ((i + 1) % 3 === 0 ? `,${val}` : val))
+        .map((val, i, arr) => (((i + 1) % 3 === 0 && (i + 1) !== arr.length) ? `,${val}` : val))
         .reverse();
     return list.join("");
   }

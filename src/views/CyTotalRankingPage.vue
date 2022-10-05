@@ -7,6 +7,7 @@
                 </ion-buttons>
                 <ion-title>통합랭킹</ion-title>
                 <ion-buttons slot="end">
+                    <web-share-button-vue></web-share-button-vue>
                     <home-button-vue></home-button-vue>
                 </ion-buttons>
             </ion-toolbar>
@@ -75,6 +76,7 @@ import Common from '@/utils/Common';
 import NoDataVue from '@/components/NoData.vue';
 import { useRoute, useRouter } from 'vue-router';
 import HomeButtonVue from '@/components/HomeButton.vue';
+import WebShareButtonVue from '@/components/WebShareButton.vue';
 
 export default defineComponent({
     components: {
@@ -94,7 +96,8 @@ export default defineComponent({
         IonSearchbar,
         IonButton,
         NoDataVue,
-        HomeButtonVue
+        HomeButtonVue,
+        WebShareButtonVue
     },
     setup() {
         const route = useRoute();

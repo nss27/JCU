@@ -7,6 +7,7 @@
         </ion-buttons>
         <ion-title>플레이어 검색</ion-title>
         <ion-buttons slot="end">
+          <web-share-button-vue></web-share-button-vue>
           <home-button-vue></home-button-vue>
         </ion-buttons>
       </ion-toolbar>
@@ -77,6 +78,7 @@ import 'swiper/css/pagination';
 import '@ionic/vue/css/ionic-swiper.css';
 import { useRoute, useRouter } from "vue-router";
 import HomeButtonVue from "@/components/HomeButton.vue";
+import WebShareButtonVue from "@/components/WebShareButton.vue";
 
 export default defineComponent({
   components: {
@@ -96,7 +98,8 @@ export default defineComponent({
     PlayerInfoVue,
     Swiper,
     SwiperSlide,
-    HomeButtonVue
+    HomeButtonVue,
+    WebShareButtonVue
   },
   setup() {
     const abortController = new AbortController();

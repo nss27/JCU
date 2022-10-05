@@ -23,8 +23,13 @@ export default defineComponent({
         const rootIndex = inject<number>('rootIndex');
 
         const goHome = () => {
-            const index = (router.options.history.state.position as number) - (rootIndex as number);
-            router.go(index * -1);
+            const index = (history.state.position as number) - (rootIndex as number);
+
+            if (location.pathname !== '/' && rootIndex !== history.state.position) {
+                router.go(index * -1);
+            } else {
+                router.replace('/');
+            }
         };
 
         return {

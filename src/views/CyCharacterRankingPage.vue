@@ -7,6 +7,7 @@
                 </ion-buttons>
                 <ion-title>캐릭터 랭킹</ion-title>
                 <ion-buttons slot="end">
+                    <web-share-button-vue></web-share-button-vue>
                     <home-button-vue></home-button-vue>
                 </ion-buttons>
             </ion-toolbar>
@@ -141,6 +142,7 @@ import '@ionic/vue/css/ionic-swiper.css';
 import { search, refresh } from 'ionicons/icons';
 import Common from '@/utils/Common';
 import { useRoute, useRouter } from 'vue-router';
+import WebShareButtonVue from '@/components/WebShareButton.vue';
 
 type RankingType = "winCount" | "winRate" | "killCount" | "assistCount" | "exp";
 
@@ -168,7 +170,8 @@ export default defineComponent({
         NoDataVue,
         HomeButtonVue,
         Swiper,
-        SwiperSlide
+        SwiperSlide,
+        WebShareButtonVue
     },
     setup() {
         const abortController = new AbortController();
@@ -179,7 +182,7 @@ export default defineComponent({
             {
                 typeKor: '승리수',
                 typeEng: 'winCount',
-                color: ''
+                color: 'medium'
             },
             {
                 typeKor: '승률',
@@ -202,8 +205,8 @@ export default defineComponent({
                 color: 'medium'
             }
         ])
-        const characterId = ref<string>(route.params.characterId as string);
-        const rankingType = ref<RankingType>(route.params.rankingType as RankingType);
+        const characterId = ref<string>('');
+        const rankingType = ref<RankingType>('' as RankingType);
         const searchWord = ref<string>('');
         const list = ref<any[]>([]);
         const characterGrid = ref<any[]>([]);
@@ -215,8 +218,8 @@ export default defineComponent({
         characters.forEach((data, i) => {
             row.push({
                 ...data,
-                class: i === 0 ? 'active' : '',
-                color: i === 0 ? 'primary' : 'medium'
+                class: '',
+                color: 'medium'
             });
             if ((i + 1) % 5 === 0) {
                 characterGrid.value.push(row);
@@ -333,8 +336,8 @@ export default defineComponent({
             }
         }
 
-        const movePage = async () => {
-            if (Common.isNull(searchWord.value)) {
+        const movePage = async (search?: boolean) => {
+            if (search && Common.isNull(searchWord.value)) {
                 const alert = await alertController.create({
                     message: '닉네임을 입력 후 다시 시도해주세요',
                     buttons: ["OK"],
@@ -351,44 +354,21 @@ export default defineComponent({
 
         const enter = () => {
             setTimeout(() => {
-                movePage();
+                movePage(true);
             }, 250);
         };
 
         const searchBtnClick = () => {
-            movePage();
+            movePage(true);
         };
 
         const showAddBtn = computed(() => offset.value > 0);
 
         watch(characterId, () => {
-            // characterGrid.value.map((row: any[]) => {
-            //     row.map(data => {
-            //         if (data.characterId === characterId.value) {
-            //             data.class = 'active';
-            //             data.color = 'primary';
-            //         } else {
-            //             data.class = '';
-            //             data.color = 'medium';
-            //         }
-            //         return data;
-            //     })
-            //     return row;
-            // })
-
-            // getRanking(true);
-
             movePage();
         })
 
         watch(rankingType, () => {
-            // rankingTypes.value.map(data => {
-            //     data.color = data.typeEng === rankingType.value ? '' : 'medium';
-            //     return data;
-            // })
-
-            // getRanking(true);
-
             movePage();
         })
 
@@ -400,6 +380,28 @@ export default defineComponent({
         })
 
         onIonViewWillEnter(() => {
+            characterId.value = route.params.characterId as string;
+            rankingType.value = route.params.rankingType as RankingType;
+
+            characterGrid.value.map((row: any[]) => {
+                row.map(data => {
+                    if (data.characterId === characterId.value) {
+                        data.class = 'active';
+                        data.color = 'primary';
+                    } else {
+                        data.class = '';
+                        data.color = 'medium';
+                    }
+                    return data;
+                })
+                return row;
+            })
+
+            rankingTypes.value.map(data => {
+                data.color = data.typeEng === rankingType.value ? '' : 'medium';
+                return data;
+            })
+
             if (route.params.searchWord !== searchWord.value) searchWord.value = route.params.searchWord as string;
             if (Common.isNull(list.value)) {
                 if (Common.isNull(searchWord.value)) {
