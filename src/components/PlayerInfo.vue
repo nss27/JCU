@@ -302,7 +302,7 @@ export default defineComponent({
                     game.totalCount = game.winCount + game.loseCount + game.stopCount;
 
                     if (game.winCount + game.loseCount > 0) {
-                        game.rate = Math.round((game.winCount / (game.winCount + game.losesCount)) * 10000) / 100;
+                        game.rate = Math.round((game.winCount / (game.winCount + game.loseCount)) * 10000) / 100;
                     } else {
                         game.rate = 0;
                     }
