@@ -55,7 +55,6 @@ import {
   IonList,
   IonItem,
   loadingController,
-  alertController,
   IonLabel,
   IonThumbnail,
   IonTitle,
@@ -66,6 +65,9 @@ import NeopleApi from "@/utils/NeopleApi";
 import { useRoute } from "vue-router";
 import HomeButtonVue from "@/components/HomeButton.vue";
 import WebShareButtonVue from "@/components/WebShareButton.vue";
+import Common from "@/utils/Common";
+
+type RarityName = "커먼" | "언커먼" | "레어" | "유니크";
 
 export default defineComponent({
   components: {
@@ -93,19 +95,6 @@ export default defineComponent({
     const itemInfo = ref();
     const detail = ref(false);
 
-    const errorHanbler = async (err: Error) => {
-      if (err.name !== 'AbortError') {
-        const alert = await alertController.create({
-          header: '오류 발생',
-          subHeader: `${err.message}`,
-          buttons: ['ok'],
-          mode: 'ios'
-        })
-
-        await alert.present();
-      }
-    }
-
     const explain = computed(() => {
       if (detail.value) {
         return itemInfo.value.explainDetail;
@@ -123,7 +112,7 @@ export default defineComponent({
     };
 
     const getItemColor = (
-      rarityName: "커먼" | "언커먼" | "레어" | "유니크"
+      rarityName: RarityName
     ) => {
       let color = "";
 
@@ -160,7 +149,7 @@ export default defineComponent({
         itemInfo.value = await NeopleApi.cyItemsInfo({ itemId: itemId }, { signal: abortController.signal });
         itemInfo.value.itemColor = getItemColor(itemInfo.value.rarityName);
       } catch (err: any) {
-        errorHanbler(err);
+        await Common.errorHandler(err);
       } finally {
         await loading.dismiss();
       }

@@ -27,7 +27,7 @@
                 <ion-label>일반전 승률</ion-label>
             </ion-list-header>
 
-            <ion-item>
+            <ion-item v-if="gameNormal">
                 <ion-label>
                     <ion-grid class="ion-no-padding">
                         <ion-row>
@@ -43,48 +43,58 @@
                 </ion-label>
             </ion-item>
 
+            <ion-item v-else>
+                <no-data-vue text="조회된 일반전 정보가 없습니다"></no-data-vue>
+            </ion-item>
+
             <ion-list-header>
                 <ion-label>공식전 승률</ion-label>
             </ion-list-header>
 
-            <ion-item>
-                <ion-label>
-                    <ion-grid class="ion-no-padding">
-                        <ion-row>
-                            <ion-col>{{gameRating.totalCount}}전</ion-col>
-                            <ion-col>{{gameRating.winCount}}승</ion-col>
-                            <ion-col>{{gameRating.loseCount}}패</ion-col>
-                            <ion-col>{{gameRating.stopCount}}중단</ion-col>
-                            <ion-col>
-                                <ion-text :color="gameRating.rateColor">{{gameRating.rate}}%</ion-text>
+            <template v-if="gameRating">
+                <ion-item>
+                    <ion-label>
+                        <ion-grid class="ion-no-padding">
+                            <ion-row>
+                                <ion-col>{{gameRating.totalCount}}전</ion-col>
+                                <ion-col>{{gameRating.winCount}}승</ion-col>
+                                <ion-col>{{gameRating.loseCount}}패</ion-col>
+                                <ion-col>{{gameRating.stopCount}}중단</ion-col>
+                                <ion-col>
+                                    <ion-text :color="gameRating.rateColor">{{gameRating.rate}}%</ion-text>
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
+                    </ion-label>
+                </ion-item>
+
+                <ion-item v-if="playerInfo.tierName">
+                    <ion-grid>
+                        <ion-row class="ion-text-center ion-align-items-center">
+                            <ion-col size="6">
+                                <ion-text color="primary">
+                                    <h1 class="ion-no-margin">{{ playerInfo.tierName }}</h1>
+                                </ion-text>
+                            </ion-col>
+                            <ion-col size="3">
+                                <div>현재점수</div>
+                                <div>{{ playerInfo.ratingPoint }}</div>
+                            </ion-col>
+                            <ion-col size="3">
+                                <div>최고점수</div>
+                                <div>{{ playerInfo.maxRatingPoint }}</div>
                             </ion-col>
                         </ion-row>
                     </ion-grid>
-                </ion-label>
-            </ion-item>
+                </ion-item>
 
-            <ion-item v-if="playerInfo.tierName">
-                <ion-grid>
-                    <ion-row class="ion-text-center ion-align-items-center">
-                        <ion-col size="6">
-                            <ion-text color="primary">
-                                <h1 class="ion-no-margin">{{ playerInfo.tierName }}</h1>
-                            </ion-text>
-                        </ion-col>
-                        <ion-col size="3">
-                            <div>현재점수</div>
-                            <div>{{ playerInfo.ratingPoint }}</div>
-                        </ion-col>
-                        <ion-col size="3">
-                            <div>최고점수</div>
-                            <div>{{ playerInfo.maxRatingPoint }}</div>
-                        </ion-col>
-                    </ion-row>
-                </ion-grid>
-            </ion-item>
+                <ion-item v-else>
+                    <no-data-vue text="배치고사중"></no-data-vue>
+                </ion-item>
+            </template>
 
             <ion-item v-else>
-                <no-data-vue text="배치고사중"></no-data-vue>
+                <no-data-vue text="조회된 공식전 정보가 없습니다"></no-data-vue>
             </ion-item>
 
             <ion-list-header>
@@ -140,7 +150,6 @@
 import Common from '@/utils/Common';
 import NeopleApi from '@/utils/NeopleApi';
 import {
-    alertController,
     loadingController,
     IonContent,
     IonText,
@@ -189,19 +198,6 @@ export default defineComponent({
         const matches = ref();
         const searchWords = ref();
 
-        const errorHanbler = async (err: Error) => {
-            if (err.name !== 'AbortError') {
-                const alert = await alertController.create({
-                    header: '오류 발생',
-                    subHeader: `${err.message}`,
-                    buttons: ['ok'],
-                    mode: 'ios'
-                })
-
-                await alert.present();
-            }
-        }
-
         const playerSearch = async () => {
             const loading = await loadingController.create({
                 message: `플레이어 '${playerNickname.value}'<br>정보 조회중`,
@@ -222,7 +218,7 @@ export default defineComponent({
                 next.value = playerInfo.value.matches.next;
                 matches.value = playerInfo.value.matches.rows;
             } catch (err: any) {
-                errorHanbler(err);
+                await Common.errorHandler(err);
             } finally {
                 await loading.dismiss();
             }
@@ -253,7 +249,7 @@ export default defineComponent({
                 matches.value = [...matches.value, ...json.matches.rows];
                 next.value = json.matches.next;
             } catch (err: any) {
-                errorHanbler(err);
+                await Common.errorHandler(err);
             } finally {
                 await loading.dismiss();
             }
@@ -280,15 +276,17 @@ export default defineComponent({
             if (!Common.isNull(playerInfo)) {
                 game = (playerInfo.value.records as any[]).filter(game => game.gameTypeId === "normal")[0];
 
-                game.totalCount = game.winCount + game.loseCount + game.stopCount;
+                if (!Common.isNull(game)) {
+                    game.totalCount = game.winCount + game.loseCount + game.stopCount;
 
-                if (game.winCount + game.loseCount > 0) {
-                    game.rate = Math.round((game.winCount / (game.winCount + game.loseCount)) * 10000) / 100;
-                } else {
-                    game.rate = 0;
+                    if (game.winCount + game.loseCount > 0) {
+                        game.rate = Math.round((game.winCount / (game.winCount + game.loseCount)) * 10000) / 100;
+                    } else {
+                        game.rate = 0;
+                    }
+
+                    game.rateColor = gameRateColor(game.rate);
                 }
-
-                game.rateColor = gameRateColor(game.rate);
             }
 
             return game;
@@ -300,16 +298,18 @@ export default defineComponent({
             if (!Common.isNull(playerInfo)) {
                 game = (playerInfo.value.records as any[]).filter(game => game.gameTypeId === "rating")[0];
 
-                game.totalCount = game.winCount + game.loseCount + game.stopCount;
+                if (!Common.isNull(game)) {
+                    game.totalCount = game.winCount + game.loseCount + game.stopCount;
 
-                if (game.winCount + game.loseCount > 0) {
-                    game.rate = Math.round((game.winCount / (game.winCount + game.loseCount)) * 10000) / 100;
-                } else {
-                    game.rate = 0;
+                    if (game.winCount + game.loseCount > 0) {
+                        game.rate = Math.round((game.winCount / (game.winCount + game.losesCount)) * 10000) / 100;
+                    } else {
+                        game.rate = 0;
+                    }
+                    game.rateColor = gameRateColor(game.rate);
                 }
             }
 
-            game.rateColor = gameRateColor(game.rate);
             return game;
         });
 

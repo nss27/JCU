@@ -108,19 +108,6 @@ export default defineComponent({
         const offset = ref(0);
         const searchWord = ref('');
 
-        const errorHanbler = async (err: Error) => {
-            if (err.name !== 'AbortError') {
-                const alert = await alertController.create({
-                    header: '오류 발생',
-                    subHeader: `${err.message}`,
-                    buttons: ['ok'],
-                    mode: 'ios'
-                })
-
-                await alert.present();
-            }
-        }
-
         const getRanking = async (refresh?: boolean) => {
             if (!Common.isNull(refresh) && refresh) {
                 list.value = [];
@@ -143,10 +130,10 @@ export default defineComponent({
                     offset.value = 0;
                 } else {
                     list.value.push(...data.rows);
-                    offset.value += 10;
+                    offset.value += data.rows.length < 10 ? 0 : 10;
                 }
             } catch (err) {
-                errorHanbler(err as Error);
+                await Common.errorHandler(err as Error);
             } finally {
                 await loading.dismiss();
             }
@@ -157,7 +144,7 @@ export default defineComponent({
 
             if (!Common.isNull(nicknames)) {
                 list.value = [];
-                offset.value = -1;
+                offset.value = 0;
 
                 const playerRankings: any[] = [];
 
@@ -182,7 +169,7 @@ export default defineComponent({
 
                     list.value = playerRankings;
                 } catch (err) {
-                    errorHanbler(err as Error);
+                    await Common.errorHandler(err as Error);
                 } finally {
                     await loading.dismiss();
                 }

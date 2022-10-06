@@ -113,19 +113,6 @@ export default defineComponent({
 
     let idb: IDBPDatabase<unknown>;
 
-    const errorHanbler = async (err: Error) => {
-      if (err.name !== 'AbortError') {
-        const alert = await alertController.create({
-          header: '오류 발생',
-          subHeader: `${err.message}`,
-          buttons: ['ok'],
-          mode: 'ios'
-        })
-
-        await alert.present();
-      }
-    }
-
     const playerSearch = async () => {
       const nicknames = searchWord.value.split(' ').filter(nickname => !Common.isNull(nickname));
 
@@ -151,7 +138,7 @@ export default defineComponent({
             }
           }
         } catch (err: any) {
-          errorHanbler(err);
+          await Common.errorHandler(err);
         } finally {
           await loading.dismiss();
 

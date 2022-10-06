@@ -45,7 +45,6 @@ import {
     IonList,
     IonItem,
     loadingController,
-    alertController,
     IonLabel,
     IonThumbnail,
     IonTitle,
@@ -55,6 +54,7 @@ import NeopleApi from '@/utils/NeopleApi';
 import { useRoute } from 'vue-router';
 import HomeButtonVue from '@/components/HomeButton.vue';
 import WebShareButtonVue from '@/components/WebShareButton.vue';
+import Common from '@/utils/Common';
 
 export default defineComponent({
     components: {
@@ -79,19 +79,6 @@ export default defineComponent({
 
         const positionInfo = ref();
 
-        const errorHanbler = async (err: Error) => {
-            if (err.name !== 'AbortError') {
-                const alert = await alertController.create({
-                    header: '오류 발생',
-                    subHeader: `${err.message}`,
-                    buttons: ['ok'],
-                    mode: 'ios'
-                })
-
-                await alert.present();
-            }
-        }
-
         onMounted(async () => {
             const loading = await loadingController.create({
                 message: "데이터 조회중",
@@ -103,7 +90,7 @@ export default defineComponent({
             try {
                 positionInfo.value = await NeopleApi.cyPositionInfo({ attributeId: attributeId }, { signal: abortController.signal });
             } catch (err: any) {
-                errorHanbler(err);
+                await Common.errorHandler(err);
             } finally {
                 await loading.dismiss();
             }

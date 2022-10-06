@@ -227,19 +227,6 @@ export default defineComponent({
             }
         });
 
-        const errorHanbler = async (err: Error) => {
-            if (err.name !== 'AbortError') {
-                const alert = await alertController.create({
-                    header: '오류 발생',
-                    subHeader: `${err.message}`,
-                    buttons: ['ok'],
-                    mode: 'ios'
-                })
-
-                await alert.present();
-            }
-        }
-
         const characterClick = (data: string) => {
             characterId.value = data;
         }
@@ -285,7 +272,7 @@ export default defineComponent({
 
                 slides.slideTo(1);
             } catch (err: any) {
-                errorHanbler(err);
+                await Common.errorHandler(err);
             } finally {
                 await loading.dismiss();
             }
@@ -296,7 +283,7 @@ export default defineComponent({
 
             if (!Common.isNull(nicknames)) {
                 list.value = [];
-                offset.value = -1;
+                offset.value = 0;
 
                 const playerRankings: any[] = [];
 
@@ -329,7 +316,7 @@ export default defineComponent({
                     list.value = playerRankings;
                     slides.slideTo(1);
                 } catch (err) {
-                    errorHanbler(err as Error);
+                    await Common.errorHandler(err as Error);
                 } finally {
                     await loading.dismiss();
                 }

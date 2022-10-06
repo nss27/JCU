@@ -197,7 +197,6 @@ import {
   IonTitle,
   IonContent,
   loadingController,
-  alertController,
   IonList,
   IonItem,
   IonChip,
@@ -219,6 +218,9 @@ import NoDataVue from "@/components/NoData.vue";
 import HomeButtonVue from "@/components/HomeButton.vue";
 import { chevronDown, chevronUp } from "ionicons/icons";
 import WebShareButtonVue from "@/components/WebShareButton.vue";
+
+type RarityName = "커먼" | "언커먼" | "레어" | "유니크";
+type PlayTypeName = '정상' | '난입' | '재입장';
 
 export default defineComponent({
   components: {
@@ -272,19 +274,6 @@ export default defineComponent({
       204: '장신구3',
       205: '장신구4'
     };
-
-    const errorHanbler = async (err: Error) => {
-      if (err.name !== 'AbortError') {
-        const alert = await alertController.create({
-          header: '오류 발생',
-          subHeader: `${err.message}`,
-          buttons: ['ok'],
-          mode: 'ios'
-        })
-
-        await alert.present();
-      }
-    }
 
     const players = computed(() => {
       const result = [] as any[];
@@ -372,7 +361,7 @@ export default defineComponent({
       }
     };
 
-    const getItemColor = (rarityName: '커먼' | '언커먼' | '레어' | '유니크') => {
+    const getItemColor = (rarityName: RarityName) => {
       let color = '';
 
       switch (rarityName) {
@@ -396,7 +385,7 @@ export default defineComponent({
       return `border-${color}`;
     }
 
-    const getPlayTypes = (data: { playInfo: { random: boolean, playTypeName: '정상' | '난입' | '재입장' } }) => {
+    const getPlayTypes = (data: { playInfo: { random: boolean, playTypeName: PlayTypeName } }) => {
       const result: string[] = [];
       result.push(data.playInfo.random ? '랜덤' : '선택');
       if (data.playInfo.playTypeName !== '정상') result.push(data.playInfo.playTypeName);
@@ -446,7 +435,7 @@ export default defineComponent({
       try {
         gameInfo.value = await NeopleApi.cyPlayerMatchesInfo({ matchId: route.params.matchId as string }, { signal: abortController.signal });
       } catch (err: any) {
-        errorHanbler(err);
+        await Common.errorHandler(err);
       } finally {
         await loading.dismiss();
       }

@@ -1,3 +1,5 @@
+import { alertController } from "@ionic/core";
+
 export default class Common {
   /**
    * 데이터 null 체크
@@ -76,8 +78,27 @@ export default class Common {
     if (list.length > 3)
       list = list
         .reverse()
-        .map((val, i, arr) => (((i + 1) % 3 === 0 && (i + 1) !== arr.length) ? `,${val}` : val))
+        .map((val, i, arr) =>
+          (i + 1) % 3 === 0 && i + 1 !== arr.length ? `,${val}` : val
+        )
         .reverse();
     return list.join("");
+  }
+
+  /**
+   * 에러처리
+   * @param err
+   */
+  static async errorHandler(err: Error) {
+    if (err.name !== "AbortError") {
+      const alert = await alertController.create({
+        header: "오류 발생",
+        subHeader: `${err.message}`,
+        buttons: ["ok"],
+        mode: "ios",
+      });
+
+      await alert.present();
+    }
   }
 }
